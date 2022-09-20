@@ -37,7 +37,7 @@ const StockCard = ({ stockSymbol }) => {
       </button>
       <p className="mt-3 ">
         <span className="text-lg font-semibold">
-          {post["regularMarketPrice"]}
+          ${post["regularMarketPrice"]}
         </span>
         {changeColor == "green" ? (
           <span className={`text-${changeColor}-600 text-sm  ml-2`}>
