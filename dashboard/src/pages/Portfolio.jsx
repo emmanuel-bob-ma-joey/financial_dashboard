@@ -1,5 +1,17 @@
 import React from "react";
 import axios from "axios";
+import { TiTimes } from "react-icons/ti";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Card,
+} from "@mui/material";
 
 import {
   GridComponent,
@@ -15,7 +27,7 @@ import {
   Edit,
   Inject,
 } from "@syncfusion/ej2-react-grids";
-import { Header } from "../components";
+import { Header, Button } from "../components";
 
 const ordersGrid = [
   {
@@ -53,11 +65,31 @@ const ordersGrid = [
 ];
 
 const Portfolio = () => {
+  const [update, setUpdate] = React.useState(false);
   const [daily, setDaily] = React.useState([]);
   const [intraDay, setIntraday] = React.useState([]);
   const [stocks, setStocks] = React.useState([]);
+  const [stockInfo, setStockInfo] = React.useState([]);
 
   let stockData = [];
+
+  const handleDelete = (row) => {
+    console.log(row);
+    //e.preventDefault();
+
+    axios
+      .delete("http://localhost:5000/portfolio", { headers: {}, data: row })
+      .then(
+        (response) => {
+          console.log(response);
+          setUpdate(true);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  };
+
   React.useEffect(() => {
     async function getStocks() {
       const response = await fetch(`http://localhost:5000/portfolio/`);
@@ -70,49 +102,30 @@ const Portfolio = () => {
 
       const stocks = await response.json();
       for (let i = 0; i < stocks.length; i++) {
-        const [firstResponse, secondResponse] = await Promise.all([
-          axios.get(
-            `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stocks[i]["StockSymbol"]}&apikey=Y0E17CDX4OXHO3V8`
-          ),
-          axios.get(
-            `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${stocks[i]["StockSymbol"]}&interval=5min&apikey=Y0E17CDX4OXHO3V8`
-          ),
-        ]);
+        console.log("making api call...");
 
-        // Update state once with responses
-
-        setDaily((oldArray) => [...oldArray, firstResponse.data]);
-        setIntraday((oldArray) => [...oldArray, secondResponse.data]);
+        await axios
+          .get(
+            `http://localhost:5000/finance/quote/${stocks[i]["StockSymbol"]}`
+          )
+          .then((response) => {
+            console.log(response);
+            setStockInfo((oldArray) => [...oldArray, response.data]);
+          });
       }
 
       setStocks(stocks);
     }
 
+    if (update) {
+      setUpdate(false);
+    }
+
     getStocks();
-  }, []);
-  if (!daily || !intraDay || !stocks) return null;
-  if (daily["Note"] || intraDay["Note"])
-    return (
-      <p>Unable to load due to API limit, please try again in a few seconds.</p>
-    );
+  }, [update]);
+  if (!stocks) return null;
 
   let fail = false;
-
-  daily.map((element) =>
-    Object.keys(element).forEach(function (key, index) {
-      if (key == "Note") {
-        fail = true;
-      }
-    })
-  );
-
-  intraDay.map((element) =>
-    Object.keys(element).forEach(function (key, index) {
-      if (key == "Note") {
-        fail = true;
-      }
-    })
-  );
 
   if (fail) {
     return (
@@ -124,19 +137,10 @@ const Portfolio = () => {
     let temp = {};
     temp.StockName = stocks[i]["companyName"];
     temp.StockSymbol = stocks[i]["StockSymbol"];
-    temp.Price = Object.entries(intraDay[i]["Time Series (5min)"])[0][1][
-      "4. close"
-    ];
-    temp.PercentageChange = (
-      ((Object.entries(intraDay[i]["Time Series (5min)"])[0][1]["4. close"] -
-        Object.entries(daily[i]["Time Series (Daily)"])[0][1]["1. open"]) /
-        Object.entries(daily[i]["Time Series (Daily)"])[0][1]["1. open"]) *
-      100
-    ).toFixed(2);
-    temp.DollarChange = (
-      Object.entries(intraDay[i]["Time Series (5min)"])[0][1]["4. close"] -
-      Object.entries(daily[i]["Time Series (Daily)"])[0][1]["1. open"]
-    ).toFixed(2);
+    temp.Price = stockInfo[i]["regularMarketPrice"];
+    temp.PercentageChange =
+      stockInfo[i]["regularMarketChangePercent"].toFixed(2);
+    temp.DollarChange = stockInfo[i]["regularMarketChange"].toFixed(2);
 
     stockData.push(temp);
   }
@@ -146,14 +150,54 @@ const Portfolio = () => {
       <div>
         <Header category="page" title="My Portfolio" />
       </div>
+      <TableContainer component={Card}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Symbol</TableCell>
+              <TableCell>Company Name</TableCell>
+              <TableCell align="right">Price</TableCell>
+              <TableCell align="right">% change</TableCell>
+              <TableCell align="right">dollar change</TableCell>
+              <TableCell align="right"></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {stockData.map((row) => (
+              <TableRow
+                key={row.StockSymbol}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.StockSymbol}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {row.StockName}
+                </TableCell>
 
-      <GridComponent id="gridComp" dataSource={stockData}>
-        <ColumnsDirective>
-          {ordersGrid.map((item, index) => (
-            <ColumnDirective key={index} {...item} />
-          ))}
-        </ColumnsDirective>
-      </GridComponent>
+                <TableCell align="right" component="th" scope="row">
+                  {row.Price}
+                </TableCell>
+                <TableCell align="right" component="th" scope="row">
+                  {row.PercentageChange}
+                </TableCell>
+                <TableCell align="right">{row.DollarChange}</TableCell>
+                <TableCell align="right">
+                  <button
+                    component="th"
+                    // aria-label="edit"
+                    // text="Delete"
+                    className={` p-1 hover:drop-shadow-xl`}
+                    onClick={() => handleDelete(row)}
+                  >
+                    <TiTimes size={28} />
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };

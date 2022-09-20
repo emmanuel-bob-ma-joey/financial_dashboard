@@ -33,7 +33,7 @@ portfolioRoutes.route("/portfolio").post(function (req, response) {
 //delete request to remove a stock from the portfolio
 portfolioRoutes.route("/portfolio").delete((req, response) => {
   let db_connect = dbo.getDb("finance_dashboard");
-  let myquery = { _id: ObjectId(req.params.id) };
+  let myquery = { StockSymbol: req.body.StockSymbol };
   db_connect.collection("portfolio").deleteOne(myquery, function (err, obj) {
     if (err) throw err;
     console.log("1 document deleted");

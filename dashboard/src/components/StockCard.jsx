@@ -7,25 +7,20 @@ const StockCard = ({ stockSymbol }) => {
 
   const [post, setPost] = React.useState(null);
   React.useEffect(() => {
-    axios.get(baseURL).then((response) => {
-      setPost(response.data);
-    });
+    axios
+      .get(`http://localhost:5000/finance/quote/${stockSymbol}`)
+      .then((response) => {
+        console.log(response);
+        setPost(response.data);
+      });
   }, []);
 
   if (!post) return null;
-  if (post["Note"])
-    return (
-      <p>Unable to load due to API limit, please try again in a few seconds.</p>
-    );
   console.log(post);
-  let peep = Object.entries(post["Time Series (Daily)"]);
-  console.log(peep[0][1]["1. open"]);
-  const dailyPercentageChange = (
-    ((peep[0][1]["4. close"] - peep[0][1]["1. open"]) / peep[0][1]["1. open"]) *
-    100
-  ).toFixed(2);
+
+  const dailyPercentageChange = post["regularMarketChangePercent"].toFixed(2);
   let changeColor = "red";
-  console.log(dailyPercentageChange);
+
   dailyPercentageChange > 0 ? (changeColor = "green") : (changeColor = "red");
 
   return (
@@ -42,12 +37,24 @@ const StockCard = ({ stockSymbol }) => {
       </button>
       <p className="mt-3 ">
         <span className="text-lg font-semibold">
-          {post["Time Series (Daily)"]["2022-09-01"]["1. open"]}
+          {post["regularMarketPrice"]}
         </span>
+        {changeColor == "green" ? (
+          <span className={`text-${changeColor}-600 text-sm  ml-2`}>
+            +{dailyPercentageChange}%
+          </span>
+        ) : (
+          <span className={`text-${changeColor}-600 text-sm  ml-2`}>
+            -{dailyPercentageChange}%
+          </span>
+        )}
 
-        <span className={`text-${changeColor}-600 text-sm  ml-2`}>
-          {dailyPercentageChange}%
-        </span>
+        {/* <span className={`text-${changeColor}-600 text-sm  ml-2`}>
+          
+            {dailyPercentageChange}%
+          
+          
+        </span> */}
       </p>
       <p className="text-sm text-gray-400 mt-1">{stockSymbol} </p>
     </div>

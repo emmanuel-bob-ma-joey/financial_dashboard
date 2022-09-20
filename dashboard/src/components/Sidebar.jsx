@@ -135,7 +135,7 @@ const Sidebar = () => {
                 <FiCalendar />
                 <span className="capitalize">calendar</span>
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/color-picker"
                 key="color-picker"
                 onClick={handleCloseSideBar}
@@ -145,9 +145,9 @@ const Sidebar = () => {
               >
                 <FiCalendar />
                 <span className="capitalize">color-picker</span>
-              </NavLink>
+              </NavLink> */}
             </div>
-            <div key="Charts">
+            {/* <div key="Charts">
               <p className="text-gray-400 m-3 mt-4 uppercase">Charts</p>
               <NavLink
                 to="/line"
@@ -182,7 +182,7 @@ const Sidebar = () => {
                 <FiCalendar />
                 <span className="capitalize">financial</span>
               </NavLink>
-            </div>
+            </div> */}
           </div>
         </>
       )}

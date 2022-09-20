@@ -107,8 +107,8 @@ const StockInfo = ({ companyName, stockSymbol }) => {
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>(USD)</TableCell>
-                <TableCell align="right">Calories</TableCell>
+                <TableCell>(Financials)</TableCell>
+                <TableCell align="right">(USD)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

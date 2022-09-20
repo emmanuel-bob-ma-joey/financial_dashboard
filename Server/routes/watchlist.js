@@ -1,12 +1,15 @@
 const express = require("express");
 const watchlistRoutes = express.Router();
 const dbo = require("../db/conn");
+const yahooFinance = require("yahoo-finance2").default;
 
 // This help convert the id from string to ObjectId for the _id.
 const ObjectId = require("mongodb").ObjectId;
 
 // get list of stocks in watchlist
-watchlistRoutes.route("/watchlist").get(function (req, res) {
+watchlistRoutes.route("/watchlist").get(async function (req, res) {
+  const result = await yahooFinance.quote("AAPL");
+  console.log(result);
   let db_connect = dbo.getDb("finance_dashboard");
   db_connect
     .collection("watchlist")
@@ -33,7 +36,7 @@ watchlistRoutes.route("/watchlist").post(function (req, response) {
 //remove a stock from watchlist
 watchlistRoutes.route("/watchlist").delete((req, response) => {
   let db_connect = dbo.getDb("finance_dashboard");
-  let myquery = { _id: ObjectId(req.params.id) };
+  let myquery = { StockSymbol: req.body.StockSymbol };
   db_connect.collection("watchlist").deleteOne(myquery, function (err, obj) {
     if (err) throw err;
     console.log("1 document deleted");
