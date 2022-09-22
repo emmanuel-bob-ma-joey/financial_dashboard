@@ -33,7 +33,7 @@ const Sidebar = () => {
   };
 
   const activeLink =
-    "flex  item-center gap-5 pl-4 pt-3 pb-2.5 rouded-lg text-white text-md m-2 ";
+    "flex  item-center gap-5 pl-4 pt-3 pb-2.5 rouded-lg text-blue-700 text-md m-2 ";
   const normalLink =
     "flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-md text-gray-700 dark:text-gray-200 dark:hover:text-black hover:bg-light-gray m-2";
   return (
@@ -51,9 +51,7 @@ const Sidebar = () => {
             <TooltipComponent content="Menu" position="BottomCenter">
               <button
                 type="button"
-                onClick={() =>
-                  setActiveMenu((prevActiveMenu) => !prevActiveMenu)
-                }
+                onClick={() => setActiveMenu(!activeMenu)}
                 className="text-xl rounded-full p-3 hover:bg-light-gray mt-4 block md:hidden"
               >
                 <MdOutlineCancel />
@@ -66,7 +64,7 @@ const Sidebar = () => {
               <NavLink
                 to="/overview"
                 key="overview"
-                onClick={() => {}}
+                onClick={handleCloseSideBar}
                 className={({ isActive }) =>
                   isActive ? activeLink : normalLink
                 }

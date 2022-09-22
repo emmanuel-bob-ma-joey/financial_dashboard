@@ -23,6 +23,8 @@ portfolioRoutes.route("/portfolio").post(function (req, response) {
   let myobj = {
     StockSymbol: req.body.stockSymbol,
     companyName: req.body.companyName,
+    shares: 0,
+    bookValue: 0,
   };
   db_connect.collection("portfolio").insertOne(myobj, function (err, res) {
     if (err) throw err;
@@ -39,6 +41,25 @@ portfolioRoutes.route("/portfolio").delete((req, response) => {
     console.log("1 document deleted");
     response.json(obj);
   });
+});
+
+//update the number of shares in a stock
+portfolioRoutes.route("/portfolio/:stockSymbol").post(function (req, response) {
+  let db_connect = dbo.getDb("finance_dashboard");
+  let myquery = { StockSymbol: req.params.stockSymbol };
+  let newvalues = {
+    $inc: {
+      shares: req.body.shares,
+      bookValue: req.body.shares * req.body.bookValue,
+    },
+  };
+  db_connect
+    .collection("portfolio")
+    .updateOne(myquery, newvalues, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+      response.json(res);
+    });
 });
 
 module.exports = portfolioRoutes;

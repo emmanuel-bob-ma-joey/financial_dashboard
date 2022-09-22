@@ -16,3 +16,4 @@ export { default as ChartsHeader } from "./ChartsHeader";
 export { default as Header } from "./Header";
 export { default as StockCard } from "./StockCard";
 export { default as StockInfo } from "./StockInfo";
+export { default as TableEntry } from "./TableEntry";

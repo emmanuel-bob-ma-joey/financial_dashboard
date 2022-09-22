@@ -13,21 +13,7 @@ import {
   Card,
 } from "@mui/material";
 
-import {
-  GridComponent,
-  ColumnsDirective,
-  ColumnDirective,
-  Resize,
-  Sort,
-  ContextMenu,
-  Filter,
-  Page,
-  ExcelExport,
-  PdfExport,
-  Edit,
-  Inject,
-} from "@syncfusion/ej2-react-grids";
-import { Header, Button } from "../components";
+import { Header, Button, TableEntry } from "../components";
 
 const ordersGrid = [
   {
@@ -66,8 +52,7 @@ const ordersGrid = [
 
 const Portfolio = () => {
   const [update, setUpdate] = React.useState(false);
-  const [daily, setDaily] = React.useState([]);
-  const [intraDay, setIntraday] = React.useState([]);
+
   const [stocks, setStocks] = React.useState([]);
   const [stockInfo, setStockInfo] = React.useState([]);
 
@@ -137,6 +122,7 @@ const Portfolio = () => {
     let temp = {};
     temp.StockName = stocks[i]["companyName"];
     temp.StockSymbol = stocks[i]["StockSymbol"];
+    temp.shares = stocks[i]["shares"];
     temp.Price = stockInfo[i]["regularMarketPrice"];
     temp.PercentageChange =
       stockInfo[i]["regularMarketChangePercent"].toFixed(2);
@@ -157,43 +143,54 @@ const Portfolio = () => {
               <TableCell>Symbol</TableCell>
               <TableCell>Company Name</TableCell>
               <TableCell align="right">Price</TableCell>
+              <TableCell align="right">Shares</TableCell>
               <TableCell align="right">% change</TableCell>
               <TableCell align="right">dollar change</TableCell>
-              <TableCell align="right"></TableCell>
+              <TableCell align="right">Delete</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {stockData.map((row) => (
-              <TableRow
+              <TableEntry
+                row={row}
+                handleDelete={handleDelete}
+                update={setUpdate}
                 key={row.StockSymbol}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {row.StockSymbol}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {row.StockName}
-                </TableCell>
+              />
+              // <TableRow
+              //   className="hover:bg-light-gray"
+              //   key={row.StockSymbol}
+              //   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              // >
+              //   <TableCell component="th" scope="row">
+              //     {row.StockSymbol}
+              //   </TableCell>
+              //   <TableCell component="th" scope="row">
+              //     {row.StockName}
+              //   </TableCell>
 
-                <TableCell align="right" component="th" scope="row">
-                  {row.Price}
-                </TableCell>
-                <TableCell align="right" component="th" scope="row">
-                  {row.PercentageChange}
-                </TableCell>
-                <TableCell align="right">{row.DollarChange}</TableCell>
-                <TableCell align="right">
-                  <button
-                    component="th"
-                    // aria-label="edit"
-                    // text="Delete"
-                    className={` p-1 hover:drop-shadow-xl`}
-                    onClick={() => handleDelete(row)}
-                  >
-                    <TiTimes size={28} />
-                  </button>
-                </TableCell>
-              </TableRow>
+              //   <TableCell align="right" component="th" scope="row">
+              //     {row.Price}
+              //   </TableCell>
+              //   <TableCell align="right" component="th" scope="row">
+              //     {row.PercentageChange}
+              //   </TableCell>
+              //   <TableCell align="right">{row.DollarChange}</TableCell>
+              //   <TableCell align="right">
+              //     <button
+              //       component="th"
+              //       // aria-label="edit"
+              //       // text="Delete"
+              //       className={` p-1 hover:drop-shadow-xl`}
+              //       onClick={() => handleDelete(row)}
+              //     >
+              //       <TiTimes size={28} />
+              //     </button>
+              //   </TableCell>
+              //   <TableCell align="right" component="th" scope="row">
+              //     {row.shares}
+              //   </TableCell>
+              // </TableRow>
             ))}
           </TableBody>
         </Table>

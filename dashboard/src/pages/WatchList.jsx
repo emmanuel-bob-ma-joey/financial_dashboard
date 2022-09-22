@@ -75,7 +75,6 @@ const WatchList = () => {
     getStocks();
   }, [update]);
   if (!stocks) return null;
-  console.log(stockInfo);
 
   for (let i = 0; i < stocks.length; i++) {
     let temp = {};
@@ -122,14 +121,37 @@ const WatchList = () => {
                 <TableCell align="right" component="th" scope="row">
                   {row.Price}
                 </TableCell>
-                <TableCell align="right" component="th" scope="row">
-                  {row.PercentageChange}
-                </TableCell>
-                <TableCell align="right">{row.DollarChange}</TableCell>
+                {row.PercentageChange > 0 ? (
+                  <TableCell
+                    sx={{ color: "green" }}
+                    align="right"
+                    component="th"
+                    scope="row"
+                  >
+                    {row.PercentageChange}
+                  </TableCell>
+                ) : (
+                  <TableCell
+                    sx={{ color: "red" }}
+                    align="right"
+                    component="th"
+                    scope="row"
+                  >
+                    {row.PercentageChange}
+                  </TableCell>
+                )}
+                {row.DollarChange > 0 ? (
+                  <TableCell sx={{ color: "green" }} align="right">
+                    {row.DollarChange}
+                  </TableCell>
+                ) : (
+                  <TableCell sx={{ color: "red" }} align="right">
+                    {row.DollarChange}
+                  </TableCell>
+                )}
+
                 <TableCell align="right">
                   <button
-                    // aria-label="edit"
-                    // text="Delete"
                     className={` p-1 hover:drop-shadow-xl`}
                     onClick={() => handleDelete(row)}
                   >
