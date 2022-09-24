@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { TiTimes } from "react-icons/ti";
+import { Link, NavLink } from "react-router-dom";
 
 import {
   Table,
@@ -157,6 +158,7 @@ const Portfolio = () => {
                 update={setUpdate}
                 key={row.StockSymbol}
               />
+
               // <TableRow
               //   className="hover:bg-light-gray"
               //   key={row.StockSymbol}

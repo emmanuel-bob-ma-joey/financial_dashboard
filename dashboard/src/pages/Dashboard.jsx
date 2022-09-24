@@ -1,4 +1,5 @@
 import React from "react";
+
 import { BsCurrencyDollar } from "react-icons/bs";
 import { GoPromitiveDot } from "react-icons/go";
 import { PieChart, Button, LineChart, StockCard } from "../components";
@@ -6,7 +7,6 @@ import { useStateContext } from "../contexts/ContextProvider";
 import { BsGraphUp } from "react-icons/bs";
 import { Card } from "@mui/material";
 import axios from "axios";
-import { ColumnSeries } from "@syncfusion/ej2-react-charts";
 
 const Dashboard = () => {
   const [stocks, setStocks] = React.useState([]);
@@ -59,8 +59,8 @@ const Dashboard = () => {
   return (
     <div className="mt-12 ">
       <div className="flex  flex-wrap   lg:flex-nowrap justify-center ">
-        <div className="bg-white  dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl w-full lg:w-80 p-8 pt-9 m-3 bg-hero-pattern bg-no-repeat bg-cover bg-center">
-          <div className="flex justify-between items-center">
+        <div className="bg-white  dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl w-full lg:w-full p-8 pt-9 m-3 bg-hero-pattern bg-no-repeat bg-cover bg-center">
+          {/* <div className="flex justify-between items-center">
             <div>
               <p className="font-bold text-white">earnings</p>
               <p className="text-2xl">$123.43</p>
@@ -74,11 +74,12 @@ const Dashboard = () => {
               borderRadius="10px"
               size="md"
             ></Button>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="flex m-3 flex-wrap lg:flex-nowrap justify-center gap-1 items-center">
         <StockCard stockSymbol="^GSPC" companyName="S&P500" exchange={true} />
+
         <StockCard stockSymbol="^IXIC" companyName="NASDAQ" exchange={true} />
         <StockCard stockSymbol="^DJI" companyName="Dow Jones" exchange={true} />
         <StockCard

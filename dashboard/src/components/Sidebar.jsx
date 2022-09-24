@@ -76,7 +76,7 @@ const Sidebar = () => {
             <div key="Pages">
               <p className="text-gray-400 m-3 mt-4 uppercase">Pages</p>
               <NavLink
-                to="/stocks"
+                to="/stocks/search"
                 key="stocks"
                 onClick={handleCloseSideBar}
                 className={({ isActive }) =>

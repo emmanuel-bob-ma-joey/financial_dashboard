@@ -13,17 +13,23 @@ import {
 } from "@mui/material";
 
 const StockInfo = ({ companyName, stockSymbol }) => {
-  const URL = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol}&apikey=Y0E17CDX4OXHO3V8`;
+  console.log(companyName);
+  console.log(stockSymbol);
+  const URL = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol.replace(
+    /^/g,
+    ""
+  )}&apikey=Y0E17CDX4OXHO3V8`;
   const [financials, setFinancials] = React.useState(null);
 
   React.useEffect(() => {
     axios.get(URL).then((response) => {
+      console.log(response.data);
       setFinancials(response.data);
     });
   }, []);
 
-  if (!financials) return null;
-  console.log(financials);
+  if (!financials || Object.keys(financials).length == 0) return null;
+  console.log(Object.keys(financials).length);
 
   let tableData = [];
   tableData.push({ stat: "EBIDTA", number: financials["EBITDA"] });

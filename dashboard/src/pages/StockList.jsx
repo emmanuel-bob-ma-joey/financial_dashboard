@@ -1,5 +1,7 @@
 import React from "react";
 import axios from "axios";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Header } from "../components";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -19,12 +21,28 @@ const filterOptions = createFilterOptions({
 });
 
 const StockList = () => {
+  const navigate = useNavigate();
   const [selectedStock, setSelectedStock] = React.useState(null);
+  const { stockSymbol } = useParams();
+
+  React.useEffect(() => {
+    if (stockSymbol != "search") {
+      setSelectedStock(stockSymbol);
+    }
+  }, []);
+
+  console.log(stockSymbol);
 
   const showStock = (stock) => {
     console.log("this is" + stock);
     setSelectedStock(stock);
     console.log(" and this should be the same" + selectedStock);
+  };
+
+  const searchStock = (event, newStock) => {
+    setSelectedStock(newStock);
+    console.log("poop" + newStock);
+    navigate(`/stocks/${newStock}`);
   };
   console.log(selectedStock);
 
@@ -36,13 +54,12 @@ const StockList = () => {
 
           <Autocomplete
             filterOptions={filterOptions}
+            freeSolo={true}
             type="button"
             id="autocomplete"
             options={stockNames}
             value={selectedStock}
-            onChange={(event, newStock) => {
-              setSelectedStock(newStock);
-            }}
+            onChange={searchStock}
             sx={{ width: 300 }}
             renderInput={(params) => (
               <TextField {...params} label="Search by company symbol or name" />
@@ -53,7 +70,7 @@ const StockList = () => {
       {selectedStock ? (
         <div className="m-2 md:m-10 p-2 md:p-10 bg-white rounded-3xl">
           <StockInfo
-            companyName={selectedStock}
+            companyName={`${selectedStock} ${selectedStock}`}
             stockSymbol={selectedStock.split(" ").pop()}
           />
         </div>

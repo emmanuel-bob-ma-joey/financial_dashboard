@@ -1,4 +1,5 @@
 import React from "react";
+import { Link, NavLink } from "react-router-dom";
 import axios from "axios";
 import {
   BsGraphUp,
@@ -26,11 +27,7 @@ const StockCard = ({ stockSymbol, companyName, exchange }) => {
   dailyPercentageChange > 0 ? (changeColor = "green") : (changeColor = "red");
 
   return (
-    <button
-      onClick={() => {
-        console.log("clicked on " + stockSymbol);
-      }}
-    >
+    <NavLink to={`/stocks/${stockSymbol}`} key="stocks">
       <div
         key={stockSymbol}
         className="bg-white border-1 dark:text-gray-200 dark:bg-secondary-dark-bg md:w-56  p-4 pt-5 rounded-2xl hover:drop-shadow-md"
@@ -84,7 +81,7 @@ const StockCard = ({ stockSymbol, companyName, exchange }) => {
           {companyName ? companyName : stockSymbol}{" "}
         </p>
       </div>
-    </button>
+    </NavLink>
   );
 };
 

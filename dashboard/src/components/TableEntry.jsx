@@ -1,6 +1,8 @@
 import React from "react";
 import axios from "axios";
 
+import { useNavigate } from "react-router-dom";
+
 import { TiTimes } from "react-icons/ti";
 
 import {
@@ -17,6 +19,7 @@ import {
 import { maxWidth } from "@mui/system";
 
 const TableEntry = ({ row, handleDelete, update }) => {
+  const navigate = useNavigate();
   const [hover, setHover] = React.useState(false);
   const [shares, setShares] = React.useState(row.shares);
   let tempShares = row.shares;
@@ -46,14 +49,16 @@ const TableEntry = ({ row, handleDelete, update }) => {
     setHover(false);
   };
 
+  const handleMouseEnter = () => {
+    navigate(`/stocks/${row.stockSymbol}`);
+    //console.log("entered!");
+  };
+
   return (
     <TableRow
-      className="hover:bg-light-gray"
+      className="hover:bg-light-gray w-full"
       onMouseOver={handleMouseOver}
       onMouseLeave={handleMouseLeave}
-      onMouseEnter={() => {
-        console.log("clicked!");
-      }}
       key={row.StockSymbol}
       sx={{
         "&:last-child td, &:last-child th": { border: 0 },
