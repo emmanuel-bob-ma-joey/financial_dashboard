@@ -7,7 +7,7 @@ const yahooFinance = require("yahoo-finance2").default;
 const ObjectId = require("mongodb").ObjectId;
 
 // get list of stocks in watchlist
-watchlistRoutes.route("/watchlist").get(async function (req, res) {
+watchlistRoutes.route("/api/watchlist").get(async function (req, res) {
   const result = await yahooFinance.quote("AAPL");
   console.log(result);
   let db_connect = dbo.getDb("finance_dashboard");
@@ -21,7 +21,7 @@ watchlistRoutes.route("/watchlist").get(async function (req, res) {
 });
 
 // post new stock to watchlist
-watchlistRoutes.route("/watchlist").post(function (req, response) {
+watchlistRoutes.route("/api/watchlist").post(function (req, response) {
   let db_connect = dbo.getDb("finance_dashboard");
   let myobj = {
     StockSymbol: req.body.stockSymbol,
@@ -45,7 +45,7 @@ watchlistRoutes.route("/watchlist").post(function (req, response) {
 });
 
 //remove a stock from watchlist
-watchlistRoutes.route("/watchlist").delete((req, response) => {
+watchlistRoutes.route("/api/watchlist").delete((req, response) => {
   let db_connect = dbo.getDb("finance_dashboard");
   let myquery = { StockSymbol: req.body.StockSymbol };
   db_connect.collection("watchlist").deleteOne(myquery, function (err, obj) {

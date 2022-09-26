@@ -6,7 +6,7 @@ const dbo = require("../db/conn");
 const ObjectId = require("mongodb").ObjectId;
 
 // get request for list of all stocks in portfolio
-portfolioRoutes.route("/portfolio").get(function (req, res) {
+portfolioRoutes.route("/api/portfolio").get(function (req, res) {
   let db_connect = dbo.getDb("finance_dashboard");
   db_connect
     .collection("portfolio")
@@ -18,7 +18,7 @@ portfolioRoutes.route("/portfolio").get(function (req, res) {
 });
 
 // post request to add a new stock to portfolio
-portfolioRoutes.route("/portfolio").post(function (req, response) {
+portfolioRoutes.route("/api/portfolio").post(function (req, response) {
   let db_connect = dbo.getDb("finance_dashboard");
   let myobj = {
     StockSymbol: req.body.stockSymbol,
@@ -27,7 +27,7 @@ portfolioRoutes.route("/portfolio").post(function (req, response) {
     bookValue: 0,
   };
   db_connect
-    .collection("portfolio")
+    .collection("/api/portfolio")
     .find({ StockSymbol: req.body.stockSymbol })
     .toArray(function (err, result) {
       if (err) throw err;
@@ -44,7 +44,7 @@ portfolioRoutes.route("/portfolio").post(function (req, response) {
 });
 
 //delete request to remove a stock from the portfolio
-portfolioRoutes.route("/portfolio").delete((req, response) => {
+portfolioRoutes.route("/api/portfolio").delete((req, response) => {
   let db_connect = dbo.getDb("finance_dashboard");
   let myquery = { StockSymbol: req.body.StockSymbol };
   db_connect.collection("portfolio").deleteOne(myquery, function (err, obj) {
@@ -55,22 +55,24 @@ portfolioRoutes.route("/portfolio").delete((req, response) => {
 });
 
 //update the number of shares in a stock
-portfolioRoutes.route("/portfolio/:stockSymbol").post(function (req, response) {
-  let db_connect = dbo.getDb("finance_dashboard");
-  let myquery = { StockSymbol: req.params.stockSymbol };
-  let newvalues = {
-    $inc: {
-      shares: req.body.shares,
-      bookValue: req.body.shares * req.body.bookValue,
-    },
-  };
-  db_connect
-    .collection("portfolio")
-    .updateOne(myquery, newvalues, function (err, res) {
-      if (err) throw err;
-      console.log("1 document updated");
-      response.json(res);
-    });
-});
+portfolioRoutes
+  .route("/api/portfolio/:stockSymbol")
+  .post(function (req, response) {
+    let db_connect = dbo.getDb("finance_dashboard");
+    let myquery = { StockSymbol: req.params.stockSymbol };
+    let newvalues = {
+      $inc: {
+        shares: req.body.shares,
+        bookValue: req.body.shares * req.body.bookValue,
+      },
+    };
+    db_connect
+      .collection("portfolio")
+      .updateOne(myquery, newvalues, function (err, res) {
+        if (err) throw err;
+        console.log("1 document updated");
+        response.json(res);
+      });
+  });
 
 module.exports = portfolioRoutes;

@@ -26,22 +26,20 @@ const WatchList = () => {
     console.log(row);
     //e.preventDefault();
 
-    axios
-      .delete("http://localhost:5000/watchlist", { headers: {}, data: row })
-      .then(
-        (response) => {
-          console.log(response);
-          setUpdate(true);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
+    axios.delete("/api/watchlist", { headers: {}, data: row }).then(
+      (response) => {
+        console.log(response);
+        setUpdate(true);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   };
 
   React.useEffect(() => {
     async function getStocks() {
-      const response = await fetch(`http://localhost:5000/watchlist/`);
+      const response = await fetch(`/api/watchlist/`);
 
       if (!response.ok) {
         const message = `An error occurred: ${response.statusText}`;
@@ -56,9 +54,7 @@ const WatchList = () => {
         console.log("making api call...");
 
         await axios
-          .get(
-            `http://localhost:5000/finance/quote/${stocks[i]["StockSymbol"]}`
-          )
+          .get(`/api/finance/quote/${stocks[i]["StockSymbol"]}`)
           .then((response) => {
             console.log(response);
             setStockInfo((oldArray) => [...oldArray, response.data]);

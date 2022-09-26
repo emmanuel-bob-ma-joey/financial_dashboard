@@ -21,7 +21,7 @@ const Dashboard = () => {
 
   React.useEffect(() => {
     async function getStocks() {
-      const response = await fetch(`http://localhost:5000/portfolio/`);
+      const response = await fetch(`/api/portfolio/`);
 
       if (!response.ok) {
         const message = `An error occurred: ${response.statusText}`;
@@ -36,9 +36,7 @@ const Dashboard = () => {
         console.log(stocks[i]["StockSymbol"]);
 
         await axios
-          .get(
-            `http://localhost:5000/finance/quote/${stocks[i]["StockSymbol"]}`
-          )
+          .get(`/api/finance/quote/${stocks[i]["StockSymbol"]}`)
           .then((response) => {
             console.log(response);
             setStockInfo((oldArray) => [...oldArray, response.data]);
@@ -50,14 +48,12 @@ const Dashboard = () => {
 
       setStocks(stocks);
 
+      await axios.get(`/api/finance/trending`).then((response) => {
+        console.log(response);
+        setTrendingStocks(response);
+      });
       await axios
-        .get(`http://localhost:5000/finance/trending`)
-        .then((response) => {
-          console.log(response);
-          setTrendingStocks(response);
-        });
-      await axios
-        .get(`http://localhost:5000/finance/recommended`, {
+        .get(`/api/finance/recommended`, {
           params: { stockSymbols: stockSymbols },
         })
         .then((response) => {
