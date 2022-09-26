@@ -1,16 +1,22 @@
 const express = require("express");
+require("dotenv").config();
+
 const app = express();
 const cors = require("cors");
 const path = require("path");
-//require("dotenv").config({ path: "./config.env" });
-require("dotenv").config();
+const financeRouter = require("./routes/finance");
+const portfolioRouter = require("./routes/portfolio");
+const watchlistRouter = require("./routes/watchlist");
+// require("dotenv").config({ path: "./config.env" });
+
 const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/portfolio", portfolioRouter);
+app.use("/api/watchlist", watchlistRouter);
+app.use("/api/finance", financeRouter);
 app.use(express.static(path.join(__dirname, "client", "build")));
-app.use(require("./routes/portfolio"));
-app.use(require("./routes/watchlist"));
-app.use(require("./routes/finance"));
 // get driver connection
 const dbo = require("./db/conn");
 
