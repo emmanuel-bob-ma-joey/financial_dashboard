@@ -1,5 +1,4 @@
 import React from "react";
-import { Carousel } from "@trendyol-js/react-carousel";
 import { BsCurrencyDollar } from "react-icons/bs";
 import { GoPromitiveDot } from "react-icons/go";
 import {
