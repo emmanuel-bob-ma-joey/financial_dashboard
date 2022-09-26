@@ -2,7 +2,6 @@ const express = require("express");
 const financeRoutes = express.Router();
 const dbo = require("../db/conn");
 const yahooFinance = require("yahoo-finance2").default;
-var googleFinance = require("google-finance");
 
 // This help convert the id from string to ObjectId for the _id.
 const ObjectId = require("mongodb").ObjectId;
