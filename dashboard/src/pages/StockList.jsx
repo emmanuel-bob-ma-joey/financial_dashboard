@@ -75,7 +75,7 @@ const StockList = () => {
           />
         </div>
       ) : (
-        <p>no stock</p>
+        <p></p>
       )}
     </div>
   );

@@ -18,3 +18,4 @@ export { default as StockCard } from "./StockCard";
 export { default as StockInfo } from "./StockInfo";
 export { default as TableEntry } from "./TableEntry";
 export { default as NewsCard } from "./NewsCard";
+export { default as MiniStockCard } from "./MiniStockCard";

@@ -6,7 +6,7 @@ import { RiNotification3Line } from "react-icons/ri";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { TooltipComponent } from "@syncfusion/ej2-react-popups";
 import peanut from "../data/peanut.jpeg";
-import { Cart, Chat, Notification, Userprofile } from ".";
+import { Notification, Userprofile } from ".";
 import { useStateContext } from "../contexts/ContextProvider";
 
 const NavButton = ({ title, customFunction, icon, color, dotcolor }) => (
@@ -70,12 +70,12 @@ const Navbar = () => {
           dotcolor="#03C9D7"
           icon={<BsChatLeft />}
         ></NavButton> */}
-        <NavButton
+        {/* <NavButton
           title="notification"
           customFunction={() => handleClick("notification")}
           color="blue"
           icon={<RiNotification3Line />}
-        ></NavButton>
+        ></NavButton> */}
         <TooltipComponent content="profile" position="BottomCenter">
           <div
             className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"

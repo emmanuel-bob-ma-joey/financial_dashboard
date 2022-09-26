@@ -121,7 +121,7 @@ const Sidebar = () => {
               </NavLink>
             </div>
             <div key="Apps">
-              <p className="text-gray-400 m-3 mt-4 uppercase">Apps</p>
+              {/* <p className="text-gray-400 m-3 mt-4 uppercase">Apps</p>
               <NavLink
                 to="/calendar"
                 key="calendar"
@@ -132,7 +132,7 @@ const Sidebar = () => {
               >
                 <FiCalendar />
                 <span className="capitalize">calendar</span>
-              </NavLink>
+              </NavLink> */}
               {/* <NavLink
                 to="/color-picker"
                 key="color-picker"

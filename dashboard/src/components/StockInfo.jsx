@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { LineChart, Button, StockCard } from "../components";
+import { LineChart, StockCard } from "../components";
 import {
   Table,
   TableBody,
@@ -10,6 +10,7 @@ import {
   TableRow,
   Paper,
   Card,
+  Button,
 } from "@mui/material";
 
 const StockInfo = ({ companyName, stockSymbol }) => {
@@ -86,7 +87,7 @@ const StockInfo = ({ companyName, stockSymbol }) => {
 
   return (
     <div>
-      <Button
+      {/* <Button
         color="white"
         bgColor="blue"
         text="add to watchlist"
@@ -101,7 +102,25 @@ const StockInfo = ({ companyName, stockSymbol }) => {
         borderRadius="10px"
         size="md"
         onClick={addToPortfolio}
-      ></Button>
+      ></Button> */}
+      <Button
+        variant="outlined"
+        target="_blank"
+        onClick={addToPortfolio}
+        sx={{ color: "blue" }}
+        size="small"
+      >
+        add to portfolio
+      </Button>
+      <Button
+        variant="outlined"
+        target="_blank"
+        onClick={addToWatchList}
+        sx={{ color: "blue" }}
+        size="small"
+      >
+        add to watchlist
+      </Button>
       <StockCard stockSymbol={stockSymbol}></StockCard>
       <LineChart
         title={companyName}

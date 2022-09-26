@@ -1,7 +1,11 @@
 import React from "react";
 
 const Footer = () => {
-  return <div>Footer</div>;
+  return (
+    <div className="absolute text-center bottom-0 w-full p-2 bg-white dark:bg-secondary-dark-bg">
+      <p>&copy; 2022 Finance Dashboard</p>
+    </div>
+  );
 };
 
 export default Footer;

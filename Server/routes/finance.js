@@ -15,14 +15,18 @@ financeRoutes
     res.json(result);
   });
 
-financeRoutes
-  .route("/finance/news/:stockSymbol")
-  .get(async function (req, res) {
-    console.log("pop");
-    const result = await googleFinance.companyNews({
-      symbol: req.params.stockSymbol,
-    });
-    res.json(result);
-  });
+financeRoutes.route("/finance/trending").get(async function (req, res) {
+  const queryOptions = { count: 5, lang: "en-US" };
+  const result = await yahooFinance.trendingSymbols("CA", queryOptions);
+  res.json(result);
+});
+
+financeRoutes.route("/finance/recommended/").get(async function (req, res) {
+  console.log("this is stock symbols " + req.query.stockSymbols);
+  const result = await yahooFinance.recommendationsBySymbol(
+    req.query.stockSymbols
+  );
+  res.json(result);
+});
 
 module.exports = financeRoutes;

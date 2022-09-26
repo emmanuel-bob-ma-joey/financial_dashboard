@@ -1,8 +1,14 @@
 import React from "react";
-
+import { Carousel } from "@trendyol-js/react-carousel";
 import { BsCurrencyDollar } from "react-icons/bs";
 import { GoPromitiveDot } from "react-icons/go";
-import { PieChart, Button, LineChart, StockCard } from "../components";
+import {
+  PieChart,
+  Button,
+  LineChart,
+  StockCard,
+  MiniStockCard,
+} from "../components";
 import { useStateContext } from "../contexts/ContextProvider";
 import { BsGraphUp } from "react-icons/bs";
 import { Card } from "@mui/material";
@@ -11,6 +17,8 @@ import axios from "axios";
 const Dashboard = () => {
   const [stocks, setStocks] = React.useState([]);
   const [stockInfo, setStockInfo] = React.useState([]);
+  const [trendingStocks, setTrendingStocks] = React.useState([]);
+  const [recommendations, setRecommendations] = React.useState([]);
 
   React.useEffect(() => {
     async function getStocks() {
@@ -38,7 +46,39 @@ const Dashboard = () => {
           });
       }
 
+      let stockSymbols = stocks.map((x) => x["StockSymbol"]);
+      console.log(stockSymbols);
+
       setStocks(stocks);
+
+      await axios
+        .get(`http://localhost:5000/finance/trending`)
+        .then((response) => {
+          console.log(response);
+          setTrendingStocks(response);
+        });
+      await axios
+        .get(`http://localhost:5000/finance/recommended`, {
+          params: { stockSymbols: stockSymbols },
+        })
+        .then((response) => {
+          console.log(response.data);
+          let info = [].concat(
+            ...response.data.map((x) =>
+              x["recommendedSymbols"].map((y) => y["symbol"])
+            )
+          );
+
+          info = [...new Set(info)];
+          info = info.reduce(function (result, element) {
+            if (!stockSymbols.includes(element)) {
+              result.push(element);
+            }
+            return result;
+          }, []);
+          console.log(info);
+          setRecommendations(info);
+        });
     }
 
     getStocks();
@@ -46,6 +86,16 @@ const Dashboard = () => {
 
   console.log(stockInfo);
   console.log(stocks);
+  console.log(recommendations);
+  let pieData = [];
+  for (let i = 0; i < stocks.length; i++) {
+    pieData.push({
+      x: stocks[i]["StockSymbol"],
+      y: stocks[i]["bookValue"].toFixed(2),
+      text: `${stocks[i]["StockSymbol"]}`,
+    });
+  }
+
   let marketTotal = 0;
   for (let i = 0; i < stocks.length; i++) {
     marketTotal += stockInfo[i]["regularMarketPrice"] * stocks[i]["shares"];
@@ -57,26 +107,18 @@ const Dashboard = () => {
   let change = (((marketTotal - bookTotal) / bookTotal) * 100).toFixed(1);
 
   return (
-    <div className="mt-12 ">
-      <div className="flex  flex-wrap   lg:flex-nowrap justify-center ">
-        <div className="bg-white  dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl w-full lg:w-full p-8 pt-9 m-3 bg-hero-pattern bg-no-repeat bg-cover bg-center">
-          {/* <div className="flex justify-between items-center">
-            <div>
-              <p className="font-bold text-white">earnings</p>
-              <p className="text-2xl">$123.43</p>
-            </div>
-          </div>
-          <div className="mt-6">
-            <Button
-              color="white"
-              bgColor="blue"
-              text="download"
-              borderRadius="10px"
-              size="md"
-            ></Button>
-          </div> */}
+    <div className="mt-12  ">
+      <div className="flex flex-col justify-center ">
+        <h1 className="self-center">
+          Based on your portfolio you may be interested in
+        </h1>
+        <div className="bg-white self-center flex overflow-x-scroll  dark:text-gray-200 dark:bg-secondary-dark-bg h-36 rounded-xl md:w-780  p-8 pt-9 m-3  bg-no-repeat bg-cover bg-center">
+          {recommendations.map((stockSymbol) => (
+            <MiniStockCard className="flex-row" stockSymbol={stockSymbol} />
+          ))}
         </div>
       </div>
+
       <div className="flex m-3 flex-wrap lg:flex-nowrap justify-center gap-1 items-center">
         <StockCard stockSymbol="^GSPC" companyName="S&P500" exchange={true} />
 
@@ -91,12 +133,8 @@ const Dashboard = () => {
 
       <div className="flex gap-10 flex-wrap justify-center">
         <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-780">
-          <div className="flex justify-between">
-            <p className="font-semibold text-xl">Portfolio Performance</p>
-            <div className="flex items-center gap-4">
-              <p>can put something here</p>
-            </div>
-          </div>
+          <p className="font-semibold text-xl">Portfolio Performance</p>
+
           <div className="mt-10 flex gap-10 flex-wrap justify-center">
             <div className="border-r-1 border-color m-4 pr-10">
               <div>
@@ -116,20 +154,21 @@ const Dashboard = () => {
                 </p>
                 <p className="text-gray-500 mt-1">Market Value</p>
               </div>
-              <div className="mt-8">
-                <p>
-                  <span className="text-3xl font-semibold">${bookTotal}</span>
-                </p>
-                <p className="text-gray-500 mt-1">Book Value</p>
-              </div>
+            </div>
+            <div className="m-4 pr-10">
+              <p>
+                <span className="text-3xl font-semibold">${bookTotal}</span>
+              </p>
+              <p className="text-gray-500 mt-1">Book Value</p>
             </div>
           </div>
+          <PieChart data={pieData} />
           <div>
-            <LineChart
+            {/* <LineChart
               title="Portfolio Overview"
               stockSymbol="SPY"
               type="percentage"
-            />
+            /> */}
           </div>
         </div>
       </div>

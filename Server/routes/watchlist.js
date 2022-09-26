@@ -27,10 +27,21 @@ watchlistRoutes.route("/watchlist").post(function (req, response) {
     StockSymbol: req.body.stockSymbol,
     companyName: req.body.companyName,
   };
-  db_connect.collection("watchlist").insertOne(myobj, function (err, res) {
-    if (err) throw err;
-    response.json(res);
-  });
+  db_connect
+    .collection("watchlist")
+    .find({ StockSymbol: req.body.stockSymbol })
+    .toArray(function (err, result) {
+      if (err) throw err;
+      console.log(result);
+      if (result.length == 0) {
+        db_connect
+          .collection("watchlist")
+          .insertOne(myobj, function (err, res) {
+            if (err) throw err;
+            response.json(res);
+          });
+      }
+    });
 });
 
 //remove a stock from watchlist

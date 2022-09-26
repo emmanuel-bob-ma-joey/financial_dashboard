@@ -53,12 +53,14 @@ const News = () => {
   if (!articles) {
     return null;
   }
+
   console.log(articles);
 
   return (
-    <div class="flex flex-wrap">
+    <div className="flex flex-wrap">
       {articles.map((obj) => (
         <NewsCard
+          key={obj.url}
           title={obj.title}
           url={obj.url}
           source={obj.source}

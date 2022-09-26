@@ -26,10 +26,21 @@ portfolioRoutes.route("/portfolio").post(function (req, response) {
     shares: 0,
     bookValue: 0,
   };
-  db_connect.collection("portfolio").insertOne(myobj, function (err, res) {
-    if (err) throw err;
-    response.json(res);
-  });
+  db_connect
+    .collection("portfolio")
+    .find({ StockSymbol: req.body.stockSymbol })
+    .toArray(function (err, result) {
+      if (err) throw err;
+      console.log(result);
+      if (result.length == 0) {
+        db_connect
+          .collection("portfolio")
+          .insertOne(myobj, function (err, res) {
+            if (err) throw err;
+            response.json(res);
+          });
+      }
+    });
 });
 
 //delete request to remove a stock from the portfolio
