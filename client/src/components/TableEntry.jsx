@@ -28,7 +28,7 @@ const TableEntry = ({ row, handleDelete, update }) => {
     let addShares = { shares: tempShares - row.shares, bookValue: row.Price };
     event.preventDefault();
     console.log("submitting new value of " + tempShares + " shares");
-    await fetch(`http://localhost:5000/portfolio/${row.StockSymbol}`, {
+    await fetch(`/api/portfolio/${row.StockSymbol}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

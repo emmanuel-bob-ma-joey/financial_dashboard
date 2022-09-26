@@ -10,12 +10,10 @@ import {
 const StockCard = ({ stockSymbol, companyName, exchange }) => {
   const [post, setPost] = React.useState(null);
   React.useEffect(() => {
-    axios
-      .get(`http://localhost:5000/finance/quote/${stockSymbol}`)
-      .then((response) => {
-        console.log(response);
-        setPost(response.data);
-      });
+    axios.get(`/api/finance/quote/${stockSymbol}`).then((response) => {
+      console.log(response);
+      setPost(response.data);
+    });
   }, []);
 
   if (!post) return null;

@@ -55,7 +55,7 @@ const StockInfo = ({ companyName, stockSymbol }) => {
     const newStock = { stockSymbol: stockSymbol, companyName: companyName };
     console.log(newStock);
 
-    await fetch("http://localhost:5000/watchlist", {
+    await fetch("/api/watchlist", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,7 +73,7 @@ const StockInfo = ({ companyName, stockSymbol }) => {
     const newStock = { stockSymbol: stockSymbol, companyName: companyName };
     console.log(newStock);
 
-    await fetch("http://localhost:5000/portfolio", {
+    await fetch("/api/portfolio", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
