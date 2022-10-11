@@ -103,17 +103,6 @@ const Dashboard = () => {
 
   return (
     <div className="mt-12  ">
-      <div className="flex flex-col justify-center ">
-        <h1 className="self-center">
-          Based on your portfolio you may be interested in
-        </h1>
-        <div className="bg-white self-center flex overflow-x-scroll  dark:text-gray-200 dark:bg-secondary-dark-bg h-36 rounded-xl md:w-780  p-8 pt-9 m-3  bg-no-repeat bg-cover bg-center">
-          {recommendations.map((stockSymbol) => (
-            <MiniStockCard className="flex-row" stockSymbol={stockSymbol} />
-          ))}
-        </div>
-      </div>
-
       <div className="flex m-3 flex-wrap lg:flex-nowrap justify-center gap-1 items-center">
         <StockCard stockSymbol="^GSPC" companyName="S&P500" exchange={true} />
 
@@ -165,6 +154,16 @@ const Dashboard = () => {
               type="percentage"
             /> */}
           </div>
+        </div>
+      </div>
+      <div className="flex flex-col justify-center ">
+        <h1 className="self-center">
+          Based on your portfolio you may be interested in
+        </h1>
+        <div className="bg-white self-center flex overflow-x-scroll  dark:text-gray-200 dark:bg-secondary-dark-bg h-36 rounded-xl md:w-780  p-8 pt-9 m-3  bg-no-repeat bg-cover bg-center">
+          {recommendations.map((stockSymbol) => (
+            <MiniStockCard className="flex-row" stockSymbol={stockSymbol} />
+          ))}
         </div>
       </div>
     </div>
