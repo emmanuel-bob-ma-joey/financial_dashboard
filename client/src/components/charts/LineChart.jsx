@@ -27,8 +27,8 @@ let personal = [
 //    string type= percentage or value - denotes y axis scale type
 // string compareTo = portfolio or watchlist
 //
-const LineChart = ({ title, stockSymbol, type, compareTo }) => {
-  const baseURL = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockSymbol}&apikey=Y0E17CDX4OXHO3V8`;
+const LineChart = ({ title, stockSymbol, type }) => {
+  const baseURL = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${stockSymbol}&apikey=Y0E17CDX4OXHO3V8`;
   const [post, setPost] = React.useState(null);
   React.useEffect(() => {
     axios.get(baseURL).then((response) => {
@@ -41,6 +41,7 @@ const LineChart = ({ title, stockSymbol, type, compareTo }) => {
     return (
       <p>Unable to load due to API limit, please try again in a few seconds.</p>
     );
+  console.log(post);
   console.log(post["Time Series (Daily)"]);
   let poop = Object.entries(post["Time Series (Daily)"]);
   let StockData = [];
