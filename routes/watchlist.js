@@ -1,11 +1,12 @@
-const express = require("express");
+import express from "express";
 const watchlistRoutes = express.Router();
-const dbo = require("../db/conn");
-const yahooFinance = require("yahoo-finance2").default;
-
+// const dbo = require("../db/conn");
+import dbo from "../db/conn.js";
+// const yahooFinance = require("yahoo-finance2").default;
+import yahooFinance from "yahoo-finance2";
 // This help convert the id from string to ObjectId for the _id.
-const ObjectId = require("mongodb").ObjectId;
-
+// const ObjectId = require("mongodb").ObjectId;
+import { ObjectId } from "mongodb";
 // get list of stocks in watchlist
 watchlistRoutes.route("/").get(async function (req, res) {
   const result = await yahooFinance.quote("AAPL");
@@ -55,4 +56,5 @@ watchlistRoutes.route("/").delete((req, response) => {
   });
 });
 
-module.exports = watchlistRoutes;
+// module.exports = watchlistRoutes;
+export default watchlistRoutes;

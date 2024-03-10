@@ -1,9 +1,12 @@
-const express = require("express");
+// const express = require("express");
+import express from "express";
 const portfolioRoutes = express.Router();
-const dbo = require("../db/conn");
+//const dbo = require("../db/conn");
+import dbo from "../db/conn.js";
 
 // This help convert the id from string to ObjectId for the _id.
-const ObjectId = require("mongodb").ObjectId;
+// const ObjectId = require("mongodb").ObjectId;
+import { ObjectId } from "mongodb";
 
 // get request for list of all stocks in portfolio
 portfolioRoutes.route("/").get(function (req, res) {
@@ -73,4 +76,5 @@ portfolioRoutes.route("/:stockSymbol").post(function (req, response) {
     });
 });
 
-module.exports = portfolioRoutes;
+// module.exports = portfolioRoutes;
+export default portfolioRoutes;
