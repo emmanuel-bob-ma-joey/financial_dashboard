@@ -35,12 +35,14 @@ const LineChart = ({ title, stockSymbol, type }) => {
       setPost(response.data);
     });
   }, []);
-
+  console.log(post);
   if (!post) return null;
-  if (post["Note"])
+  if (post["Note"] || post["Information"]) {
     return (
       <p>Unable to load due to API limit, please try again in a few seconds.</p>
     );
+  }
+
   console.log(post);
   console.log(post["Time Series (Daily)"]);
   let poop = Object.entries(post["Time Series (Daily)"]);
