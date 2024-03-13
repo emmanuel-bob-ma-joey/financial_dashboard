@@ -19,7 +19,7 @@ const StockInfo = ({ companyName, stockSymbol }) => {
   const URL = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol.replace(
     /^/g,
     ""
-  )}&apikey=Y0E17CDX4OXHO3V8`;
+  )}&apikey=${process.env.API_KEY}`;
   const [financials, setFinancials] = React.useState(null);
 
   React.useEffect(() => {

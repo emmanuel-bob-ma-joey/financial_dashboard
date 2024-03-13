@@ -12,10 +12,14 @@ import {
 const MiniStockCard = ({ stockSymbol, companyName, exchange }) => {
   const [post, setPost] = React.useState(null);
   React.useEffect(() => {
-    axios.get(`/api/finance/quote/${stockSymbol}`).then((response) => {
-      console.log(response);
-      setPost(response.data);
-    });
+    axios
+      .get(
+        `dashboard-backend-three-psi.vercel.app/api/finance/quote/${stockSymbol}`
+      )
+      .then((response) => {
+        console.log(response);
+        setPost(response.data);
+      });
   }, []);
 
   if (!post) return null;
