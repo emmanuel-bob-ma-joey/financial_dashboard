@@ -36,7 +36,9 @@ const Dashboard = () => {
         console.log(stocks[i]["StockSymbol"]);
 
         await axios
-          .get(`/api/finance/quote/${stocks[i]["StockSymbol"]}`)
+          .get(
+            `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stocks[i]["StockSymbol"]}`
+          )
           .then((response) => {
             console.log(response);
             setStockInfo((oldArray) => [...oldArray, response.data]);
@@ -48,14 +50,21 @@ const Dashboard = () => {
 
       setStocks(stocks);
 
-      await axios.get(`/api/finance/trending`).then((response) => {
-        console.log(response);
-        setTrendingStocks(response);
-      });
       await axios
-        .get(`/api/finance/recommended`, {
-          params: { stockSymbols: stockSymbols },
-        })
+        .get(
+          `https://dashboard-backend-three-psi.vercel.app/api/finance/trending`
+        )
+        .then((response) => {
+          console.log(response);
+          setTrendingStocks(response);
+        });
+      await axios
+        .get(
+          `https://dashboard-backend-three-psi.vercel.app/api/finance/recommended`,
+          {
+            params: { stockSymbols: stockSymbols },
+          }
+        )
         .then((response) => {
           console.log(response.data);
           let info = [].concat(

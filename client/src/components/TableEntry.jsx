@@ -28,13 +28,16 @@ const TableEntry = ({ row, handleDelete, update }) => {
     let addShares = { shares: tempShares - row.shares, bookValue: row.Price };
     event.preventDefault();
     console.log("submitting new value of " + tempShares + " shares");
-    await fetch(`/api/portfolio/${row.StockSymbol}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(addShares),
-    }).catch((error) => {
+    await fetch(
+      `https://dashboard-backend-three-psi.vercel.app/api/portfolio/${row.StockSymbol}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(addShares),
+      }
+    ).catch((error) => {
       window.alert(error);
       return;
     });

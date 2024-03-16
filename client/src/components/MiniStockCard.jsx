@@ -14,7 +14,7 @@ const MiniStockCard = ({ stockSymbol, companyName, exchange }) => {
   React.useEffect(() => {
     axios
       .get(
-        `dashboard-backend-three-psi.vercel.app/api/finance/quote/${stockSymbol}`
+        `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stockSymbol}`
       )
       .then((response) => {
         console.log(response);

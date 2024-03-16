@@ -10,9 +10,13 @@ import {
 const StockCard = ({ stockSymbol, companyName, exchange }) => {
   const [post, setPost] = React.useState(null);
   React.useEffect(() => {
+    console.log("stockSymbol", stockSymbol);
+    console.log(
+      `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stockSymbol}`
+    );
     axios
       .get(
-        `dashboard-backend-three-psi.vercel.app/api/finance/quote/${stockSymbol}`
+        `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stockSymbol}`
       )
       .then((response) => {
         console.log(response);
@@ -21,7 +25,11 @@ const StockCard = ({ stockSymbol, companyName, exchange }) => {
   }, []);
 
   if (!post) return null;
-  console.log(post);
+  if (post["Note"] || post["Information"]) {
+    return (
+      <p>Unable to load due to API limit, please try again in a few seconds.</p>
+    );
+  }
 
   const dailyPercentageChange = post["regularMarketChangePercent"].toFixed(2);
   let changeColor = "red";

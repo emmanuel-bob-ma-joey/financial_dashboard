@@ -26,15 +26,20 @@ const WatchList = () => {
     console.log(row);
     //e.preventDefault();
 
-    axios.delete("/api/watchlist", { headers: {}, data: row }).then(
-      (response) => {
-        console.log(response);
-        setUpdate(true);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+    axios
+      .delete("https://dashboard-backend-three-psi.vercel.app/api/watchlist", {
+        headers: {},
+        data: row,
+      })
+      .then(
+        (response) => {
+          console.log(response);
+          setUpdate(true);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
   };
 
   React.useEffect(() => {
@@ -54,7 +59,9 @@ const WatchList = () => {
         console.log("making api call...");
 
         await axios
-          .get(`/api/finance/quote/${stocks[i]["StockSymbol"]}`)
+          .get(
+            `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stocks[i]["StockSymbol"]}`
+          )
           .then((response) => {
             console.log(response);
             setStockInfo((oldArray) => [...oldArray, response.data]);
