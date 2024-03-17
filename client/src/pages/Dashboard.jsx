@@ -21,7 +21,9 @@ const Dashboard = () => {
 
   React.useEffect(() => {
     async function getStocks() {
-      const response = await fetch(`/api/portfolio/`);
+      const response = await fetch(
+        `https://dashboard-backend-three-psi.vercel.app/api/portfolio`
+      );
 
       if (!response.ok) {
         const message = `An error occurred: ${response.statusText}`;
