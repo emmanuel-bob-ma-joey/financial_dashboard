@@ -82,9 +82,15 @@ const Portfolio = () => {
   React.useEffect(() => {
     async function getStocks() {
       console.log("getting portfolio");
-      const response = await fetch(
-        `https://dashboard-backend-three-psi.vercel.app/api/portfolio/`
+
+      // const response = await fetch(
+      //   `https://dashboard-backend-three-psi.vercel.app/api/portfolio/`
+      // );
+
+      const response = await axios.get(
+        "https://dashboard-backend-three-psi.vercel.app/api/portfolio/"
       );
+      console.log("response is", response);
 
       if (!response.ok) {
         const message = `An error occurred: ${response.statusText}`;
@@ -92,7 +98,8 @@ const Portfolio = () => {
         return;
       }
 
-      const stocks = await response.json();
+      //const stocks = await response.json();
+      const stocks = response.data;
       for (let i = 0; i < stocks.length; i++) {
         console.log("making api call...");
 
