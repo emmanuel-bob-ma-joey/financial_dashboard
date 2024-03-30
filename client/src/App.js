@@ -26,10 +26,12 @@ import {
   Financial,
   ColorMapping,
   Pie,
+  Signup,
   News,
 } from "./pages";
 
 import { useStateContext } from "./contexts/ContextProvider";
+//import { AuthProvider } from "./contexts/authContextProvider";
 
 import "./App.css";
 
@@ -71,6 +73,7 @@ const App = () => {
               <Navbar />
             </div>
             <div>
+              {/* <AuthProvider> */}
               <Routes>
                 {/*homepage dashboard*/}
                 <Route path="/" element={<Dashboard />} />
@@ -90,7 +93,9 @@ const App = () => {
                 <Route path="/area" element={<Area />} />
                 <Route path="/color-mapping" element={<ColorMapping />} />
                 <Route path="/news" element={<News />} />
+                <Route path="/signup" element={<Signup />} />
               </Routes>
+              {/* </AuthProvider> */}
             </div>
 
             <Footer />

@@ -9,15 +9,25 @@ import {
   MiniStockCard,
 } from "../components";
 import { useStateContext } from "../contexts/ContextProvider";
+// import { useAuth } from "../contexts/authContextProvider";
 import { BsGraphUp } from "react-icons/bs";
 import { Card } from "@mui/material";
 import axios from "axios";
+
+import { auth } from "../firebase.js";
 
 const Dashboard = () => {
   const [stocks, setStocks] = React.useState([]);
   const [stockInfo, setStockInfo] = React.useState([]);
   const [trendingStocks, setTrendingStocks] = React.useState([]);
   const [recommendations, setRecommendations] = React.useState([]);
+
+  const user = auth.currentUser;
+  if (user) {
+    console.log(user.displayName);
+  } else {
+    console.log("no user");
+  }
 
   React.useEffect(() => {
     async function getStocks() {
@@ -125,6 +135,9 @@ const Dashboard = () => {
           exchange={true}
         />
       </div>
+
+      {/* <h1>Dashboard</h1>
+      {currentUser && <p>Welcome, {currentUser.email}</p>} */}
 
       <div className="flex gap-10 flex-wrap justify-center">
         <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-780">

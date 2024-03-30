@@ -1,4 +1,4 @@
-import { React, useEffect } from "react";
+import { React, useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { FiShoppingCart } from "react-icons/fi";
 import { BsChatLeft } from "react-icons/bs";
@@ -8,6 +8,9 @@ import { TooltipComponent } from "@syncfusion/ej2-react-popups";
 import peanut from "../data/peanut.jpeg";
 import { Notification, Userprofile } from ".";
 import { useStateContext } from "../contexts/ContextProvider";
+
+import { auth } from "../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
 
 const NavButton = ({ title, customFunction, icon, color, dotcolor }) => (
   <TooltipComponent content={title} position="BottomCenter">
@@ -36,6 +39,19 @@ const Navbar = () => {
     screenSize,
     setscreenSize,
   } = useStateContext();
+
+  const [user, setUser] = useState(null);
+  onAuthStateChanged(auth, (u) => {
+    if (u) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/auth.user
+      setUser(u.displayName);
+      // ...
+    } else {
+      // User is signed out
+      setUser("");
+    }
+  });
 
   useEffect(() => {
     const handleResize = () => setscreenSize(window.innerWidth);
@@ -89,7 +105,7 @@ const Navbar = () => {
             <p>
               <span className="text-gray-400 text-14">Hi,</span>{" "}
               <span className="text-gray-400 font-bold ml-1 text-14">
-                Peanut
+                {user}
               </span>
             </p>
             <MdKeyboardArrowDown className="text-gray-400 text-14" />
