@@ -18,6 +18,8 @@
     "@syncfusion/ej2-react-schedule": "^19.4.50",
     "@tarekraafat/autocomplete.js": "^10.2.7",
     "axios": "^0.27.2",
+    "firebase": "^10.10.0",
+    "firebaseui": "^6.1.0",
     "os-browserify": "^0.3.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
