@@ -9,7 +9,8 @@ import { auth } from "../firebase.js";
 
 const Signup = () => {
   useEffect(() => {
-    const ui = new firebaseui.auth.AuthUI(auth);
+    const ui =
+      firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
     ui.start("#firebaseui-auth-container", {
       callbacks: {
         signInSuccessWithAuthResult: function (authResult, redirectUrl) {

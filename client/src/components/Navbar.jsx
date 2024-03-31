@@ -11,12 +11,13 @@ import { useStateContext } from "../contexts/ContextProvider";
 import { FaSignInAlt } from "react-icons/fa";
 
 import { enableRipple } from "@syncfusion/ej2-base";
-//import { DropDownButtonComponent } from "@syncfusion/ej2-react-splitbuttons";
+import { Dropdown, Avatar } from "rsuite";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { auth } from "../firebase.js";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import "rsuite/dist/rsuite.min.css";
 
 enableRipple(true);
 
@@ -49,6 +50,12 @@ const Navbar = () => {
   } = useStateContext();
 
   const [user, setUser] = useState(null);
+
+  const items = [
+    {
+      text: "Sign out",
+    },
+  ];
   onAuthStateChanged(auth, (u) => {
     if (u) {
       // User is signed in, see docs for a list of available properties
@@ -62,10 +69,18 @@ const Navbar = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const redirectToSignIn = () => {
     navigate("/signup");
   };
+
+  const userSignOut = () => {
+    console.log("signing out");
+    signOut(auth);
+  };
+
+  const renderToggle = (props) => <Avatar circle {...props} src={peanut} />;
 
   useEffect(() => {
     const handleResize = () => setscreenSize(window.innerWidth);
@@ -106,34 +121,40 @@ const Navbar = () => {
           color="blue"
           icon={<RiNotification3Line />}
         ></NavButton> */}
-        <TooltipComponent content="profile" position="BottomCenter">
-          {user ? (
-            <div
-              className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
-              onClick={() => handleClick("userProfile")}
-            >
-              <img
-                className="rounded-full w-8 h-8"
-                src={peanut}
-                alt="user-profile"
-              />
-              <p>
-                <span className="text-gray-400 text-14">Hi,</span>{" "}
-                <span className="text-gray-400 font-bold ml-1 text-14">
-                  {user}
-                </span>
-              </p>
-              <MdKeyboardArrowDown className="text-gray-400 text-14" />
-            </div>
-          ) : (
-            <NavButton
-              title="Signin"
-              customFunction={() => redirectToSignIn()}
-              color="black"
-              icon={<FaSignInAlt />}
-            ></NavButton>
-          )}
-        </TooltipComponent>
+
+        {user ? (
+          <div
+            className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
+            onClick={() => handleClick("userProfile")}
+          >
+            {/* <MdKeyboardArrowDown className="text-gray-400 text-14" /> */}
+            <Dropdown renderToggle={renderToggle} placement="leftStart">
+              <Dropdown.Item
+                panel
+                style={{
+                  padding: 10,
+                  width: 160,
+                }}
+              >
+                <p>Signed in as</p>
+                <strong>{user}</strong>
+              </Dropdown.Item>
+              <Dropdown.Separator />
+              <Dropdown.Item onSelect={userSignOut}>Sign out</Dropdown.Item>
+            </Dropdown>
+          </div>
+        ) : (
+          location.pathname !== "/signup" && (
+            <TooltipComponent content="signin" position="BottomCenter">
+              <NavButton
+                title="Signin"
+                customFunction={() => redirectToSignIn()}
+                color="black"
+                icon={<FaSignInAlt />}
+              ></NavButton>
+            </TooltipComponent>
+          )
+        )}
 
         {isClicked.notification && <Notification />}
       </div>
