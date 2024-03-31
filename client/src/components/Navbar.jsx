@@ -8,9 +8,17 @@ import { TooltipComponent } from "@syncfusion/ej2-react-popups";
 import peanut from "../data/peanut.jpeg";
 import { Notification, Userprofile } from ".";
 import { useStateContext } from "../contexts/ContextProvider";
+import { FaSignInAlt } from "react-icons/fa";
+
+import { enableRipple } from "@syncfusion/ej2-base";
+//import { DropDownButtonComponent } from "@syncfusion/ej2-react-splitbuttons";
+
+import { useNavigate } from "react-router-dom";
 
 import { auth } from "../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
+
+enableRipple(true);
 
 const NavButton = ({ title, customFunction, icon, color, dotcolor }) => (
   <TooltipComponent content={title} position="BottomCenter">
@@ -53,6 +61,12 @@ const Navbar = () => {
     }
   });
 
+  const navigate = useNavigate();
+
+  const redirectToSignIn = () => {
+    navigate("/signup");
+  };
+
   useEffect(() => {
     const handleResize = () => setscreenSize(window.innerWidth);
     window.addEventListener("resize", handleResize);
@@ -93,23 +107,32 @@ const Navbar = () => {
           icon={<RiNotification3Line />}
         ></NavButton> */}
         <TooltipComponent content="profile" position="BottomCenter">
-          <div
-            className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
-            onClick={() => handleClick("userProfile")}
-          >
-            <img
-              className="rounded-full w-8 h-8"
-              src={peanut}
-              alt="user-profile"
-            />
-            <p>
-              <span className="text-gray-400 text-14">Hi,</span>{" "}
-              <span className="text-gray-400 font-bold ml-1 text-14">
-                {user}
-              </span>
-            </p>
-            <MdKeyboardArrowDown className="text-gray-400 text-14" />
-          </div>
+          {user ? (
+            <div
+              className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
+              onClick={() => handleClick("userProfile")}
+            >
+              <img
+                className="rounded-full w-8 h-8"
+                src={peanut}
+                alt="user-profile"
+              />
+              <p>
+                <span className="text-gray-400 text-14">Hi,</span>{" "}
+                <span className="text-gray-400 font-bold ml-1 text-14">
+                  {user}
+                </span>
+              </p>
+              <MdKeyboardArrowDown className="text-gray-400 text-14" />
+            </div>
+          ) : (
+            <NavButton
+              title="Signin"
+              customFunction={() => redirectToSignIn()}
+              color="black"
+              icon={<FaSignInAlt />}
+            ></NavButton>
+          )}
         </TooltipComponent>
 
         {isClicked.notification && <Notification />}

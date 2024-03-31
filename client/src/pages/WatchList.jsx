@@ -2,6 +2,9 @@ import React from "react";
 import axios from "axios";
 import { TiTimes } from "react-icons/ti";
 
+import { auth } from "../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
+
 import {
   Table,
   TableBody,

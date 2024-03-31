@@ -28,7 +28,7 @@ let personal = [
 // string compareTo = portfolio or watchlist
 //
 const LineChart = ({ title, stockSymbol, type }) => {
-  const baseURL = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${stockSymbol}&apikey=${process.env.API_KEY}`;
+  const baseURL = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockSymbol}&apikey=${process.env.API_KEY}`;
   const [post, setPost] = React.useState(null);
   React.useEffect(() => {
     axios.get(baseURL).then((response) => {

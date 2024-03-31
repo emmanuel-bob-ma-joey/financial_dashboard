@@ -74,7 +74,7 @@ const Dashboard = () => {
         .get(
           `https://dashboard-backend-three-psi.vercel.app/api/finance/recommended`,
           {
-            params: { stockSymbols: stockSymbols },
+            params: { stockSymbols: stockSymbols.join(", ") },
           }
         )
         .then((response) => {

@@ -90,6 +90,8 @@ const Portfolio = () => {
         const message = `An error occurred: ${response.statusText}`;
         window.alert(message);
         return;
+      } else {
+        console.log("this is the portfolio response:", response);
       }
 
       const stocks = await response.json();
