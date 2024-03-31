@@ -17,7 +17,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import { auth } from "../firebase.js";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import "rsuite/dist/rsuite.min.css";
+import "rsuite/Dropdown/styles/index.css";
+import "rsuite/Avatar/styles/index.css";
 
 enableRipple(true);
 
