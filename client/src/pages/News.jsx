@@ -9,10 +9,12 @@ const News = () => {
     async function getNews() {
       await axios
         .get(
-          `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tipcs=finance&limit=50&apikey=Y0E17CDX4OXHO3V8`
+          `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&topics=technology&limit=50&apikey=${process.env.API_KEY}`
         )
         .then((response) => {
           //console.log(response);
+          console.log("made news api call!");
+          console.log(response);
           setArticles(response.data.feed);
         });
     }
@@ -21,7 +23,10 @@ const News = () => {
   }, []);
 
   if (!articles) {
+    console.log("no articles!");
     return null;
+  } else {
+    console.log("articles!");
   }
 
   console.log(articles);

@@ -15,25 +15,52 @@ import { Card } from "@mui/material";
 import axios from "axios";
 
 import { auth } from "../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Dashboard = () => {
   const [stocks, setStocks] = React.useState([]);
   const [stockInfo, setStockInfo] = React.useState([]);
   const [trendingStocks, setTrendingStocks] = React.useState([]);
   const [recommendations, setRecommendations] = React.useState([]);
+  //const [user, setUser] = React.useState(null);
+  const [user, setUser] = React.useState(auth.currentUser);
 
-  const user = auth.currentUser;
-  if (user) {
-    console.log(user.displayName);
-  } else {
-    console.log("no user");
-  }
+  // const user = auth.currentUser;
+
+  // if (user != auth.currentUser) {
+  //   setUser(auth.currentUser);
+  // } else {
+  //   console.log("no user");
+  // }
+
+  onAuthStateChanged(auth, (u) => {
+    if (u) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/auth.user
+      setUser(u);
+      // ...
+    } else {
+      // User is signed out
+      setUser(null);
+    }
+  });
 
   React.useEffect(() => {
     async function getStocks() {
-      const response = await fetch(
-        `https://dashboard-backend-three-psi.vercel.app/api/portfolio`
+      let response, stocks, uid;
+      //user = auth.currentUser;
+      if (user) {
+        uid = user.uid;
+      } else {
+        uid = "NULL";
+      }
+
+      console.log("there is no user");
+      response = await fetch(
+        `https://dashboard-backend-three-psi.vercel.app/api/portfolio?user=${uid}`
       );
+
+      console.log("no user response is:", response);
 
       if (!response.ok) {
         const message = `An error occurred: ${response.statusText}`;
@@ -41,8 +68,11 @@ const Dashboard = () => {
         return;
       }
 
-      const stocks = await response.json();
+      stocks = await response.json();
       console.log(stocks);
+
+      console.log("this is stocks: ", stocks);
+
       for (let i = 0; i < stocks.length; i++) {
         console.log("making api call...");
         console.log(stocks[i]["StockSymbol"]);
@@ -96,9 +126,10 @@ const Dashboard = () => {
           setRecommendations(info);
         });
     }
+    console.log("running getstocks");
 
     getStocks();
-  }, []);
+  }, [user]);
 
   console.log(stockInfo);
   console.log(stocks);
