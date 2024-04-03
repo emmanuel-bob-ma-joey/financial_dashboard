@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [trendingStocks, setTrendingStocks] = React.useState([]);
   const [recommendations, setRecommendations] = React.useState([]);
   //const [user, setUser] = React.useState(null);
-  const [user, setUser] = React.useState(auth.currentUser);
+  const [user, setUser] = React.useState(null);
 
   // const user = auth.currentUser;
 
@@ -33,34 +33,40 @@ const Dashboard = () => {
   //   console.log("no user");
   // }
 
-  onAuthStateChanged(auth, (u) => {
-    if (u) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/auth.user
-      setUser(u);
-      // ...
-    } else {
-      // User is signed out
-      setUser(null);
-    }
-  });
+  // onAuthStateChanged(auth, (u) => {
+  //   if (u) {
+  //     // User is signed in, see docs for a list of available properties
+  //     // https://firebase.google.com/docs/reference/js/auth.user
+  //     setUser(u);
+  //     // ...
+  //   } else {
+  //     // User is signed out
+  //     setUser(null);
+  //   }
+  // });
+  React.useEffect(() => {
+    // This listener is called whenever the user's sign-in state changes
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser); // Update your state with the new user
+      console.log("user auth status has changed,user is now", currentUser);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Empty dependency array means this effect runs once on mount
 
   React.useEffect(() => {
+    console.log("running useeffect");
     async function getStocks() {
-      let response, stocks, uid;
+      let response, stocks;
       //user = auth.currentUser;
+      let uid = "NULL";
       if (user) {
         uid = user.uid;
-      } else {
-        uid = "NULL";
       }
-
-      console.log("there is no user");
       response = await fetch(
         `https://dashboard-backend-three-psi.vercel.app/api/portfolio?user=${uid}`
       );
-
-      console.log("no user response is:", response);
 
       if (!response.ok) {
         const message = `An error occurred: ${response.statusText}`;
@@ -69,8 +75,6 @@ const Dashboard = () => {
       }
 
       stocks = await response.json();
-      console.log(stocks);
-
       console.log("this is stocks: ", stocks);
 
       for (let i = 0; i < stocks.length; i++) {
@@ -82,12 +86,13 @@ const Dashboard = () => {
             `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stocks[i]["StockSymbol"]}`
           )
           .then((response) => {
-            console.log(response);
             setStockInfo((oldArray) => [...oldArray, response.data]);
           });
       }
 
       let stockSymbols = stocks.map((x) => x["StockSymbol"]);
+      let stockSymbolsString =
+        stockSymbols.length > 0 ? stockSymbols.join(", ") : "IBM";
       console.log(stockSymbols);
 
       setStocks(stocks);
@@ -97,18 +102,16 @@ const Dashboard = () => {
           `https://dashboard-backend-three-psi.vercel.app/api/finance/trending`
         )
         .then((response) => {
-          console.log(response);
           setTrendingStocks(response);
         });
       await axios
         .get(
           `https://dashboard-backend-three-psi.vercel.app/api/finance/recommended`,
           {
-            params: { stockSymbols: stockSymbols.join(", ") },
+            params: { stockSymbols: stockSymbolsString },
           }
         )
         .then((response) => {
-          console.log(response.data);
           let info = [].concat(
             ...response.data.map((x) =>
               x["recommendedSymbols"].map((y) => y["symbol"])
@@ -122,7 +125,6 @@ const Dashboard = () => {
             }
             return result;
           }, []);
-          console.log(info);
           setRecommendations(info);
         });
     }
@@ -131,9 +133,9 @@ const Dashboard = () => {
     getStocks();
   }, [user]);
 
-  console.log(stockInfo);
-  console.log(stocks);
-  console.log(recommendations);
+  // console.log(stockInfo);
+  // console.log(stocks);
+  // console.log(recommendations);
   let pieData = [];
   for (let i = 0; i < stocks.length; i++) {
     pieData.push({
@@ -152,6 +154,8 @@ const Dashboard = () => {
     .reduce((partialsum, x) => partialsum + x["bookValue"], 0)
     .toFixed(2);
   let change = (((marketTotal - bookTotal) / bookTotal) * 100).toFixed(1);
+
+  console.log("rerendering dashboard");
 
   return (
     <div className="mt-12  ">

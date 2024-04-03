@@ -16,6 +16,9 @@ import {
 
 import { Header, Button, TableEntry } from "../components";
 
+import { auth } from "../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
+
 const ordersGrid = [
   {
     field: "StockSymbol",
@@ -56,12 +59,42 @@ const Portfolio = () => {
 
   const [stocks, setStocks] = React.useState([]);
   const [stockInfo, setStockInfo] = React.useState([]);
+  const [user, setUser] = React.useState(auth.currentUser);
 
   let stockData = [];
+
+  // onAuthStateChanged(auth, (u) => {
+  //   if (u) {
+  //     // User is signed in, see docs for a list of available properties
+  //     // https://firebase.google.com/docs/reference/js/auth.user
+  //     setUser(u);
+  //     // ...
+  //   } else {
+  //     // User is signed out
+  //     setUser(null);
+  //   }
+  // });
+
+  React.useEffect(() => {
+    // This listener is called whenever the user's sign-in state changes
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser); // Update your state with the new user
+      console.log("user auth status has changed");
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Empty dependency array means this effect runs once on mount
 
   const handleDelete = (row) => {
     console.log(row);
     //e.preventDefault();
+
+    if (user) {
+      row.uid = user.uid;
+    } else {
+      row.uid = "NULL";
+    }
 
     axios
       .delete("https://dashboard-backend-three-psi.vercel.app/api/portfolio", {
@@ -82,8 +115,13 @@ const Portfolio = () => {
   React.useEffect(() => {
     async function getStocks() {
       console.log("getting portfolio");
+      let userid = "NULL";
+      if (user) {
+        userid = user.uid;
+      }
+      console.log("the userid is", userid);
       const response = await fetch(
-        `https://dashboard-backend-three-psi.vercel.app/api/portfolio`
+        `https://dashboard-backend-three-psi.vercel.app/api/portfolio?user=${userid}`
       );
 
       if (!response.ok) {
@@ -116,7 +154,7 @@ const Portfolio = () => {
     }
 
     getStocks();
-  }, [update]);
+  }, [update, user]);
   if (!stocks) return null;
 
   let fail = false;
