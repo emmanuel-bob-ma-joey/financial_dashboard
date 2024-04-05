@@ -22,17 +22,30 @@ const WatchList = () => {
   const [update, setUpdate] = React.useState(false);
   const [stocks, setStocks] = React.useState([]);
   const [stockInfo, setStockInfo] = React.useState([]);
+  const [user, setUser] = React.useState(auth.currentUser);
 
   let stockData = [];
+
+  React.useEffect(() => {
+    // This listener is called whenever the user's sign-in state changes
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser); // Update your state with the new user
+      console.log("user auth status has changed");
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Empty dependency array means this effect runs once on mount
 
   const handleDelete = (row) => {
     console.log(row);
     //e.preventDefault();
+    let uid = user ? user.uid : "NULL";
 
     axios
       .delete("https://dashboard-backend-three-psi.vercel.app/api/watchlist", {
         headers: {},
-        data: row,
+        data: { stockSymbol: row.StockSymbol, user: uid },
       })
       .then(
         (response) => {
@@ -47,8 +60,10 @@ const WatchList = () => {
 
   React.useEffect(() => {
     async function getStocks() {
+      let userid = user ? user.uid : "NULL";
+
       const response = await fetch(
-        `https://dashboard-backend-three-psi.vercel.app/api/watchlist`
+        `https://dashboard-backend-three-psi.vercel.app/api/watchlist?user=${userid}`
       );
 
       if (!response.ok) {
