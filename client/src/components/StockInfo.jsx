@@ -12,10 +12,25 @@ import {
   Card,
   Button,
 } from "@mui/material";
+import { auth } from "../firebase.js";
 
 const StockInfo = ({ companyName, stockSymbol }) => {
   console.log(companyName);
   console.log(stockSymbol);
+
+  const [user, setUser] = React.useState(auth.currentUser);
+
+  React.useEffect(() => {
+    // This listener is called whenever the user's sign-in state changes
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser); // Update your state with the new user
+      console.log("user auth status has changed");
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Empty dependency array means this effect runs once on mount
+
   const URL = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol.replace(
     /^/g,
     ""
@@ -49,37 +64,53 @@ const StockInfo = ({ companyName, stockSymbol }) => {
   tableData.push({ stat: "52 Week Low", number: financials["52WeekLow"] });
 
   const addToWatchList = async () => {
-    console.log("Adding " + stockSymbol + " to watchlist");
+    console.log("Adding " + stockSymbol + " to " + user + " watchlist");
+    const userid = user ? user.uid : "NULL";
     //e.preventDefault();
 
-    const newStock = { stockSymbol: stockSymbol, companyName: companyName };
+    const newStock = {
+      stockSymbol: stockSymbol,
+      companyName: companyName,
+      uid: userid,
+    };
     console.log(newStock);
 
-    await fetch("/api/watchlist", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newStock),
-    }).catch((error) => {
+    await fetch(
+      "https://dashboard-backend-three-psi.vercel.app/api/watchlist",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newStock),
+      }
+    ).catch((error) => {
       window.alert(error);
       return;
     });
   };
 
   const addToPortfolio = async () => {
-    console.log("Adding " + stockSymbol + " to portfolio");
+    const userid = user ? user.uid : "NULL";
+    console.log("Adding " + stockSymbol + " to " + userid + " portfolio");
 
-    const newStock = { stockSymbol: stockSymbol, companyName: companyName };
+    const newStock = {
+      stockSymbol: stockSymbol,
+      companyName: companyName,
+      uid: userid,
+    };
     console.log(newStock);
 
-    await fetch("/api/portfolio", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newStock),
-    }).catch((error) => {
+    await fetch(
+      "https://dashboard-backend-three-psi.vercel.app/api/portfolio",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newStock),
+      }
+    ).catch((error) => {
       window.alert(error);
       return;
     });
