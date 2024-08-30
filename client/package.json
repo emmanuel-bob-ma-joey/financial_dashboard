@@ -63,5 +63,9 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "postcss": "^8.4.6",
     "tailwindcss": "^3.0.19"
+  },
+  "browser": {
+    "os": "os-browserify/browser",
+    "path": "path-browserify"
   }
 }

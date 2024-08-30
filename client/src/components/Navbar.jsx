@@ -52,22 +52,17 @@ const Navbar = () => {
 
   const [user, setUser] = useState(null);
 
-  const items = [
-    {
-      text: "Sign out",
-    },
-  ];
-  onAuthStateChanged(auth, (u) => {
-    if (u) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/auth.user
-      setUser(u.displayName);
-      // ...
-    } else {
-      // User is signed out
-      setUser("");
-    }
-  });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      if (u) {
+        setUser(u.displayName || u.email);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -89,6 +84,7 @@ const Navbar = () => {
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   useEffect(() => {
     screenSize <= 900 ? setActiveMenu(false) : setActiveMenu(true);
   }, [screenSize]);
@@ -102,62 +98,27 @@ const Navbar = () => {
         }
         color="blue"
         icon={<AiOutlineMenu />}
-      ></NavButton>
-      <div className="flex">
-        {/* <NavButton
-          title="cart"
-          customFunction={() => handleClick("cart")}
-          color="blue"
-          icon={<FiShoppingCart />}
-        ></NavButton> */}
-        {/* <NavButton
-          title="chat"
-          customFunction={() => handleClick("chat")}
-          dotcolor="#03C9D7"
-          icon={<BsChatLeft />}
-        ></NavButton> */}
-        {/* <NavButton
-          title="notification"
-          customFunction={() => handleClick("notification")}
-          color="blue"
-          icon={<RiNotification3Line />}
-        ></NavButton> */}
-
+      />
+      <div className="flex items-center gap-2">
         {user ? (
-          <div
-            className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
-            onClick={() => handleClick("userProfile")}
-          >
-            {/* <MdKeyboardArrowDown className="text-gray-400 text-14" /> */}
-            <Dropdown renderToggle={renderToggle} placement="leftStart">
-              <Dropdown.Item
-                panel
-                style={{
-                  padding: 10,
-                  width: 160,
-                }}
-              >
-                <p>Signed in as</p>
-                <strong>{user}</strong>
-              </Dropdown.Item>
-              <Dropdown.Separator />
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600">Signed in as {user}</span>
+            <Dropdown renderToggle={renderToggle} placement="bottomEnd">
               <Dropdown.Item onSelect={userSignOut}>Sign out</Dropdown.Item>
             </Dropdown>
           </div>
         ) : (
           location.pathname !== "/signup" && (
-            <TooltipComponent content="signin" position="BottomCenter">
+            <TooltipComponent content="Sign in" position="BottomCenter">
               <NavButton
-                title="Signin"
-                customFunction={() => redirectToSignIn()}
+                title="Sign in"
+                customFunction={redirectToSignIn}
                 color="black"
                 icon={<FaSignInAlt />}
-              ></NavButton>
+              />
             </TooltipComponent>
           )
         )}
-
-        {isClicked.notification && <Notification />}
       </div>
     </div>
   );
