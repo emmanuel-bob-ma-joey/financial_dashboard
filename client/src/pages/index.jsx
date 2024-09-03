@@ -17,4 +17,5 @@ export { default as WatchList } from "./WatchList";
 export { default as StockList } from "./StockList";
 export { default as Dashboard } from "./Dashboard";
 export { default as News } from "./News";
+export { default as Signin } from "./Signin";
 export { default as Signup } from "./Signup";

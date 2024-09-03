@@ -1,39 +1,76 @@
-import React, { useEffect } from "react";
-import firebase from "firebase/compat/app";
-import * as firebaseui from "firebaseui";
-import "firebaseui/dist/firebaseui.css";
+import React from "react";
+import { auth } from "../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase.js";
 
 const Signup = () => {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const ui =
-      firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
-    ui.start("#firebaseui-auth-container", {
-      signInOptions: [
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      ],
-      callbacks: {
-        signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-          // User successfully signed in.
-          // Return type determines whether we continue the redirect automatically
-          // or whether we leave that to developer to handle.
-          navigate("/dashboard");
-          return false;
-        },
-      },
-      signInFlow: "popup",
-      signInSuccessUrl: "/dashboard",
-    });
-  }, [navigate]);
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   return (
-    <div>
-      <h2>Sign Up or Log In</h2>
-      <div id="firebaseui-auth-container"></div>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="p-6 max-w-sm w-full bg-white shadow-md rounded-md">
+        <h2 className="text-2xl font-bold text-center text-gray-700 mb-5">
+          Sign Up
+        </h2>
+        {error && <p className="text-red-500 text-sm mb-5">{error}</p>}
+        <form onSubmit={handleSignup}>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="email"
+            >
+              Email
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="email"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="password"
+            >
+              Password
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              id="password"
+              type="password"
+              placeholder="******************"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="submit"
+            >
+              Sign Up
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

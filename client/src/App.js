@@ -26,6 +26,7 @@ import {
   Financial,
   ColorMapping,
   Pie,
+  Signin,
   Signup,
   News,
 } from "./pages";
@@ -93,6 +94,7 @@ const App = () => {
                   <Route path="/area" element={<Area />} />
                   <Route path="/color-mapping" element={<ColorMapping />} />
                   <Route path="/news" element={<News />} />
+                  <Route path="/signin" element={<Signin />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/dashboard" element={<Dashboard />} />{" "}
                   {/* Add the dashboard route */}

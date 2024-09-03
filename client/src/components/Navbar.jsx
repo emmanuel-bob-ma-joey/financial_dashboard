@@ -8,7 +8,7 @@ import { TooltipComponent } from "@syncfusion/ej2-react-popups";
 import peanut from "../data/peanut.jpeg";
 import { Notification, Userprofile } from ".";
 import { useStateContext } from "../contexts/ContextProvider";
-import { FaSignInAlt } from "react-icons/fa";
+import { FaSignInAlt, FaUserPlus } from "react-icons/fa";
 
 import { enableRipple } from "@syncfusion/ej2-base";
 import { Dropdown, Avatar } from "rsuite";
@@ -68,7 +68,7 @@ const Navbar = () => {
   const location = useLocation();
 
   const redirectToSignIn = () => {
-    navigate("/signup");
+    navigate("/signin");
   };
 
   const userSignOut = () => {
@@ -108,7 +108,7 @@ const Navbar = () => {
             </Dropdown>
           </div>
         ) : (
-          location.pathname !== "/signup" && (
+          <>
             <TooltipComponent content="Sign in" position="BottomCenter">
               <NavButton
                 title="Sign in"
@@ -117,7 +117,15 @@ const Navbar = () => {
                 icon={<FaSignInAlt />}
               />
             </TooltipComponent>
-          )
+            <TooltipComponent content="Sign up" position="BottomCenter">
+              <NavButton
+                title="Sign up"
+                customFunction={() => navigate("/signup")}
+                color="black"
+                icon={<FaUserPlus />}
+              />
+            </TooltipComponent>
+          </>
         )}
       </div>
     </div>
