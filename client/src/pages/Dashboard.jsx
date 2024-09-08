@@ -1,231 +1,258 @@
-import React from "react";
-import { BsCurrencyDollar } from "react-icons/bs";
-import { GoPromitiveDot } from "react-icons/go";
-import {
-  PieChart,
-  Button,
-  LineChart,
-  StockCard,
-  MiniStockCard,
-} from "../components";
+import React, { useState, useEffect } from "react";
+import { PieChart, LineChart, StockCard, MiniStockCard } from "../components";
 import { useStateContext } from "../contexts/ContextProvider";
-// import { useAuth } from "../contexts/authContextProvider";
-import { BsGraphUp } from "react-icons/bs";
-import { Card } from "@mui/material";
+import { Grid, Typography, Box, Container, Paper } from "@mui/material";
 import axios from "axios";
-
 import { auth } from "../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 
 const Dashboard = () => {
-  const [stocks, setStocks] = React.useState([]);
-  const [stockInfo, setStockInfo] = React.useState([]);
-  const [trendingStocks, setTrendingStocks] = React.useState([]);
-  const [recommendations, setRecommendations] = React.useState([]);
-  //const [user, setUser] = React.useState(null);
-  const [user, setUser] = React.useState(null);
+  const [stocks, setStocks] = useState([]);
+  const [stockInfo, setStockInfo] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { activeMenu } = useStateContext();
 
-  // const user = auth.currentUser;
-
-  // if (user != auth.currentUser) {
-  //   setUser(auth.currentUser);
-  // } else {
-  //   console.log("no user");
-  // }
-
-  // onAuthStateChanged(auth, (u) => {
-  //   if (u) {
-  //     // User is signed in, see docs for a list of available properties
-  //     // https://firebase.google.com/docs/reference/js/auth.user
-  //     setUser(u);
-  //     // ...
-  //   } else {
-  //     // User is signed out
-  //     setUser(null);
-  //   }
-  // });
-  React.useEffect(() => {
-    // This listener is called whenever the user's sign-in state changes
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser); // Update your state with the new user
-      console.log("user auth status has changed,user is now", currentUser);
+  useEffect(() => {
+    console.log("Setting up auth state listener");
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      console.log("Auth state changed, current user:", currentUser);
+      setUser(currentUser);
     });
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []); // Empty dependency array means this effect runs once on mount
+    return () => {
+      console.log("Cleaning up auth state listener");
+      unsubscribe();
+    };
+  }, []);
 
-  React.useEffect(() => {
-    console.log("running useeffect");
+  useEffect(() => {
     async function getStocks() {
-      let response, stocks;
-      //user = auth.currentUser;
-      let uid = "NULL";
-      if (user) {
-        uid = user.uid;
-      }
-      response = await fetch(
-        `https://dashboard-backend-three-psi.vercel.app/api/portfolio?user=${uid}`
-      );
+      console.log("getStocks function called");
+      setLoading(true);
+      try {
+        const uid = user ? user.uid : "NULL";
+        const response = await fetch(
+          `https://dashboard-backend-three-psi.vercel.app/api/portfolio?user=${uid}`
+        );
 
-      if (!response.ok) {
-        const message = `An error occurred: ${response.statusText}`;
-        window.alert(message);
-        return;
-      }
+        if (!response.ok) {
+          throw new Error(`An error occurred: ${response.statusText}`);
+        }
 
-      stocks = await response.json();
-      console.log("this is stocks: ", stocks);
+        const stocks = await response.json();
+        console.log("this is stocks: ", stocks);
 
-      for (let i = 0; i < stocks.length; i++) {
-        console.log("making api call...");
-        console.log(stocks[i]["StockSymbol"]);
-
-        await axios
-          .get(
-            `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stocks[i]["StockSymbol"]}`
+        const stockInfoPromises = stocks.map((stock) =>
+          axios.get(
+            `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stock["StockSymbol"]}`
           )
-          .then((response) => {
-            setStockInfo((oldArray) => [...oldArray, response.data]);
-          });
-      }
+        );
 
-      let stockSymbols = stocks.map((x) => x["StockSymbol"]);
-      let stockSymbolsString =
-        stockSymbols.length > 0 ? stockSymbols.join(", ") : "IBM";
-      console.log(stockSymbols);
+        const stockInfoResponses = await Promise.all(stockInfoPromises);
+        const stockInfo = stockInfoResponses.map((response) => response.data);
 
-      setStocks(stocks);
+        setStocks(stocks);
+        setStockInfo(stockInfo);
 
-      await axios
-        .get(
-          `https://dashboard-backend-three-psi.vercel.app/api/finance/trending`
-        )
-        .then((response) => {
-          setTrendingStocks(response);
-        });
-      await axios
-        .get(
-          `https://dashboard-backend-three-psi.vercel.app/api/finance/recommended`,
-          {
-            params: { stockSymbols: stockSymbolsString },
-          }
-        )
-        .then((response) => {
-          let info = [].concat(
-            ...response.data.map((x) =>
-              x["recommendedSymbols"].map((y) => y["symbol"])
-            )
+        const stockSymbols = stocks.map((x) => x["StockSymbol"]);
+        try {
+          const recommendationsResponse = await axios.get(
+            `https://dashboard-backend-three-psi.vercel.app/api/recommendations?stocks=${stockSymbols.join(
+              ","
+            )}`
           );
-
-          info = [...new Set(info)];
-          info = info.reduce(function (result, element) {
-            if (!stockSymbols.includes(element)) {
-              result.push(element);
-            }
-            return result;
-          }, []);
-          setRecommendations(info);
-        });
+          setRecommendations(recommendationsResponse.data);
+          console.log("recommendations: ", recommendationsResponse.data);
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            console.error(
+              "Recommendations API returned 404. Setting empty recommendations."
+            );
+            setRecommendations([]);
+          } else {
+            throw error;
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching stocks:", error);
+      } finally {
+        setLoading(false);
+      }
     }
-    console.log("running getstocks");
 
     getStocks();
   }, [user]);
 
-  // console.log(stockInfo);
-  // console.log(stocks);
-  // console.log(recommendations);
-  let pieData = [];
-  for (let i = 0; i < stocks.length; i++) {
-    pieData.push({
-      x: stocks[i]["StockSymbol"],
-      y: stocks[i]["bookValue"].toFixed(2),
-      text: `${stocks[i]["StockSymbol"]}`,
-    });
+  const pieData = stocks.map((stock) => ({
+    x: stock["StockSymbol"],
+    y: parseFloat(stock["bookValue"]),
+    text: `${stock["StockSymbol"]}`,
+  }));
+
+  const marketTotal = stocks.reduce(
+    (total, stock, index) =>
+      total + (stockInfo[index]?.regularMarketPrice || 0) * stock.shares,
+    0
+  );
+
+  const bookTotal = stocks.reduce((total, stock) => total + stock.bookValue, 0);
+  const change = (((marketTotal - bookTotal) / bookTotal) * 100).toFixed(1);
+
+  console.log("Rendering Dashboard");
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Typography variant="h5">Loading...</Typography>
+      </Box>
+    );
   }
-
-  let marketTotal = 0;
-  for (let i = 0; i < stocks.length; i++) {
-    marketTotal += stockInfo[i]["regularMarketPrice"] * stocks[i]["shares"];
-  }
-
-  let bookTotal = stocks
-    .reduce((partialsum, x) => partialsum + x["bookValue"], 0)
-    .toFixed(2);
-  let change = (((marketTotal - bookTotal) / bookTotal) * 100).toFixed(1);
-
-  console.log("rerendering dashboard");
 
   return (
-    <div className="mt-12  ">
-      <div className="flex m-3 flex-wrap lg:flex-nowrap justify-center gap-1 items-center">
-        <StockCard stockSymbol="^GSPC" companyName="S&P500" exchange={true} />
+    <Box
+      sx={{
+        flexGrow: 1,
+        padding: 3,
+        width: "100%",
+        maxWidth: "100vw",
+        overflowX: "hidden",
+        marginRight: 0,
+        transition: "width 0.3s ease-in-out",
+      }}
+    >
+      <Container maxWidth="xl">
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+              <Typography variant="h4" gutterBottom>
+                Market Overview
+              </Typography>
+              <Grid container spacing={2}>
+                {["^GSPC", "^IXIC", "^DJI", "^RUT"].map((symbol, index) => (
+                  <Grid item xs={12} sm={6} md={3} key={symbol}>
+                    <StockCard
+                      stockSymbol={symbol}
+                      companyName={
+                        ["S&P500", "NASDAQ", "Dow Jones", "Russell 2000"][index]
+                      }
+                      exchange={true}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Paper>
+          </Grid>
 
-        <StockCard stockSymbol="^IXIC" companyName="NASDAQ" exchange={true} />
-        <StockCard stockSymbol="^DJI" companyName="Dow Jones" exchange={true} />
-        <StockCard
-          stockSymbol="^RUT"
-          companyName="Russell 2000"
-          exchange={true}
-        />
-      </div>
-
-      {/* <h1>Dashboard</h1>
-      {currentUser && <p>Welcome, {currentUser.email}</p>} */}
-
-      <div className="flex gap-10 flex-wrap justify-center">
-        <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-780">
-          <p className="font-semibold text-xl">Portfolio Performance</p>
-
-          <div className="mt-10 flex gap-10 flex-wrap justify-center">
-            <div className="border-r-1 border-color m-4 pr-10">
-              <div>
-                <p>
-                  <span className="text-3xl font-semibold">
+          <Grid item xs={12} md={8}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                Portfolio Performance
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle1">Market Value</Typography>
+                  <Typography variant="h4">
                     ${marketTotal.toFixed(2)}
-                  </span>
-                  {change < 0 ? (
-                    <span className="p-1.5 hover:drop-shadow-xl cursor-pointer rounded-full text-white bg-red-400 ml-3 text-xs">
+                    <Typography
+                      component="span"
+                      variant="body2"
+                      sx={{
+                        ml: 1,
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                        color: "white",
+                        bgcolor: change < 0 ? "error.main" : "success.main",
+                      }}
+                    >
                       {change}%
-                    </span>
-                  ) : (
-                    <span className="p-1.5 hover:drop-shadow-xl cursor-pointer rounded-full text-white bg-green-400 ml-3 text-xs">
-                      +{change}%
-                    </span>
-                  )}
-                </p>
-                <p className="text-gray-500 mt-1">Market Value</p>
-              </div>
-            </div>
-            <div className="m-4 pr-10">
-              <p>
-                <span className="text-3xl font-semibold">${bookTotal}</span>
-              </p>
-              <p className="text-gray-500 mt-1">Book Value</p>
-            </div>
-          </div>
-          <PieChart data={pieData} />
-          <div>
-            {/* <LineChart
-              title="Portfolio Overview"
-              stockSymbol="SPY"
-              type="percentage"
-            /> */}
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col justify-center ">
-        <h1 className="self-center">
-          Based on your portfolio you may be interested in
-        </h1>
-        <div className="bg-white self-center flex overflow-x-scroll  dark:text-gray-200 dark:bg-secondary-dark-bg h-36 rounded-xl md:w-780  p-8 pt-9 m-3  bg-no-repeat bg-cover bg-center">
-          {recommendations.map((stockSymbol) => (
-            <MiniStockCard className="flex-row" stockSymbol={stockSymbol} />
-          ))}
-        </div>
-      </div>
-    </div>
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle1">Book Value</Typography>
+                  <Typography variant="h4">${bookTotal.toFixed(2)}</Typography>
+                </Grid>
+              </Grid>
+              <Box sx={{ mt: 2, height: 500 }}>
+                <PieChart data={pieData} />
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3, height: "100%" }}>
+              <Typography variant="h5" gutterBottom>
+                Daily Change
+              </Typography>
+              <Box sx={{ mt: 2, maxHeight: 400, overflowY: "auto" }}>
+                {stocks.map((stock, index) => (
+                  <Box key={stock.StockSymbol} sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1">
+                      {stock.StockSymbol}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color:
+                          stockInfo[index]?.regularMarketChangePercent >= 0
+                            ? "success.main"
+                            : "error.main",
+                      }}
+                    >
+                      {stockInfo[index]?.regularMarketChangePercent.toFixed(2)}%
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                Portfolio Trend
+              </Typography>
+              <LineChart
+                title="Portfolio Trend"
+                stockSymbol="SPY"
+                type="percentage"
+              />
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                Recommended Stocks
+              </Typography>
+              {recommendations.length > 0 ? (
+                <Box sx={{ display: "flex", overflowX: "auto", py: 2 }}>
+                  {recommendations.map((stockSymbol) => (
+                    <Box key={stockSymbol} sx={{ minWidth: 200, mr: 2 }}>
+                      <MiniStockCard stockSymbol={stockSymbol} />
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body1">
+                  No recommendations available at the moment.
+                </Typography>
+              )}
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
