@@ -14,10 +14,40 @@ const Signup = () => {
   const [error, setError] = React.useState(null);
   const navigate = useNavigate();
 
+  const createUserInDatabase = async (user) => {
+    try {
+      const response = await fetch(
+        "https://dashboard-backend-three-psi.vercel.app/api/users",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create user in database");
+      }
+
+      const data = await response.json();
+      console.log("User created in database:", data);
+    } catch (error) {
+      console.error("Error creating user in database:", error);
+      // You might want to handle this error, perhaps by showing a message to the user
+    }
+  };
+
   const handleEmailSignup = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await createUserInDatabase(userCredential.user.uid);
       navigate("/dashboard");
     } catch (error) {
       setError(error.message);
@@ -27,7 +57,8 @@ const Signup = () => {
   const handleGoogleSignup = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      await createUserInDatabase(result.user.uid);
       navigate("/dashboard");
     } catch (error) {
       setError(error.message);

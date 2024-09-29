@@ -78,6 +78,42 @@ const Navbar = () => {
 
   const renderToggle = (props) => <Avatar circle {...props} src={peanut} />;
 
+  const handleDeleteUser = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
+      try {
+        const user = auth.currentUser;
+        console.log("deleting user", user);
+        console.log("deleting user uid", user.uid);
+        if (user) {
+          // Delete user data from MongoDB
+          await fetch(
+            `https://dashboard-backend-three-psi.vercel.app/api/users?user=${user.uid}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          // Delete user from Firebase Auth
+          await user.delete();
+
+          // Sign out and redirect to home page
+          await auth.signOut();
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("Failed to delete user. Please try again.");
+      }
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => setscreenSize(window.innerWidth);
     window.addEventListener("resize", handleResize);
@@ -109,6 +145,9 @@ const Navbar = () => {
             <span className="text-gray-600">Signed in as {user}</span>
             <Dropdown renderToggle={renderToggle} placement="bottomEnd">
               <Dropdown.Item onSelect={userSignOut}>Sign out</Dropdown.Item>
+              <Dropdown.Item onSelect={handleDeleteUser}>
+                Delete Account
+              </Dropdown.Item>
             </Dropdown>
           </div>
         ) : (
