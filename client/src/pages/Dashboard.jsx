@@ -4,28 +4,26 @@ import { useStateContext } from "../contexts/ContextProvider";
 import { Grid, Typography, Box, Container, Paper } from "@mui/material";
 import axios from "axios";
 import { auth } from "../firebase.js";
-import { onAuthStateChanged } from "firebase/auth";
+// import { onAuthStateChanged } from "firebase/auth";
 
 const Dashboard = () => {
   const [stocks, setStocks] = useState([]);
   const [stockInfo, setStockInfo] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(auth.currentUser);
   const [loading, setLoading] = useState(true);
   const { activeMenu } = useStateContext();
 
   useEffect(() => {
-    console.log("Setting up auth state listener");
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log("Auth state changed, current user:", currentUser);
-      setUser(currentUser);
+    // This listener is called whenever the user's sign-in state changes
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser); // Update your state with the new user
+      console.log("user auth status has changed");
     });
 
-    return () => {
-      console.log("Cleaning up auth state listener");
-      unsubscribe();
-    };
-  }, []);
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Empty dependency array means this effect runs once on mount
 
   useEffect(() => {
     async function getStocks() {
@@ -33,6 +31,7 @@ const Dashboard = () => {
       setLoading(true);
       try {
         const uid = user ? user.uid : "NULL";
+        console.log("uid: ", uid);
         const response = await fetch(
           `https://dashboard-backend-three-psi.vercel.app/api/portfolio?user=${uid}`
         );
@@ -42,7 +41,7 @@ const Dashboard = () => {
         }
 
         const stocks = await response.json();
-        console.log("this is stocks: ", stocks);
+        console.log("this is stocks for user", uid, ": ", stocks);
 
         const stockInfoPromises = stocks.map((stock) =>
           axios.get(

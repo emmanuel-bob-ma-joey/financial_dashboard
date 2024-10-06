@@ -17,7 +17,6 @@ import {
 import { Header, Button, TableEntry } from "../components";
 
 import { auth } from "../firebase.js";
-import { onAuthStateChanged } from "firebase/auth";
 
 const ordersGrid = [
   {

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import { TiTimes } from "react-icons/ti";
+import { auth } from "../firebase.js";
 
 import {
   Table,
@@ -22,14 +23,31 @@ const TableEntry = ({ row, handleDelete, update }) => {
   const navigate = useNavigate();
   const [hover, setHover] = React.useState(false);
   const [shares, setShares] = React.useState(row.shares);
+  const [user, setUser] = React.useState(auth.currentUser);
   let tempShares = row.shares;
 
+  React.useEffect(() => {
+    // This listener is called whenever the user's sign-in state changes
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser); // Update your state with the new user
+      console.log("user auth status has changed");
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Empty dependency array means this effect runs once on mount
+
   const handleSubmit = async (event) => {
-    let addShares = { shares: tempShares - row.shares, bookValue: row.Price };
+    let addShares = {
+      shares: tempShares - row.shares,
+      bookValue: row.Price,
+      StockSymbol: row.StockSymbol,
+    };
     event.preventDefault();
     console.log("submitting new value of " + tempShares + " shares");
+    console.log("user uid: ", user.uid);
     await fetch(
-      `https://dashboard-backend-three-psi.vercel.app/api/portfolio/${row.StockSymbol}`,
+      `https://dashboard-backend-three-psi.vercel.app/api/portfolio/${user.uid}`,
       {
         method: "POST",
         headers: {
