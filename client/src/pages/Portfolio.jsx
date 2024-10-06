@@ -89,7 +89,7 @@ const Portfolio = () => {
             `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stocks[i]["StockSymbol"]}`
           )
           .then((response) => {
-            console.log(response);
+            console.log(response.data);
             setStockInfo((oldArray) => [...oldArray, response.data]);
           });
       }
@@ -126,6 +126,19 @@ const Portfolio = () => {
     temp.buyPrice = stocks[i]["buyPrice"];
     temp.buyDays = stocks[i]["buyDays"];
     temp.sellDays = stocks[i]["sellDays"];
+
+    if (temp.Price > temp.sellPrice) {
+      temp.buySellZonePercent =
+        ((temp.Price - temp.sellPrice).toFixed(2) / temp.Price) * 100;
+      temp.buySellZone = "Sell";
+    } else if (temp.Price < temp.buyPrice) {
+      temp.buySellZonePercent =
+        ((temp.buyPrice - temp.Price).toFixed(2) / temp.Price) * 100;
+      temp.buySellZone = "Buy";
+    } else {
+      temp.buySellZone = "Hold";
+      temp.buySellZonePercent = 0;
+    }
     stockData.push(temp);
   }
 
@@ -139,7 +152,7 @@ const Portfolio = () => {
           <TableHead>
             <TableRow>
               <TableCell>Symbol</TableCell>
-              <TableCell>Company Name</TableCell>
+              {/* <TableCell>Company Name</TableCell> */}
               <TableCell align="right">Price</TableCell>
               <TableCell align="right">Shares</TableCell>
               <TableCell align="right">% change</TableCell>
@@ -148,6 +161,8 @@ const Portfolio = () => {
               <TableCell align="right">Sell Price</TableCell>
               <TableCell align="right">Buy Days</TableCell>
               <TableCell align="right">Sell Days</TableCell>
+              <TableCell align="right">Buy/Sell zone</TableCell>
+              <TableCell align="right">Days in zone</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>

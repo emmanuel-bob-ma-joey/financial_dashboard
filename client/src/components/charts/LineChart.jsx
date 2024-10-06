@@ -13,16 +13,6 @@ import {
 import { useStateContext } from "../../contexts/ContextProvider";
 import { Header } from "../../components";
 
-let personal = [
-  { x: "2022-08-27", y: 0 },
-  { x: "2022-08-28", y: 2 },
-  { x: "2022-08-29", y: 3 },
-  { x: "2022-08-30", y: 2 },
-  { x: "2022-08-31", y: 1 },
-  { x: "2022-09-01", y: 3 },
-  { x: "2022-09-02", y: 6 },
-];
-
 //args: stockSymbol = company stock symbol
 //    string type= percentage or value - denotes y axis scale type
 // string compareTo = portfolio or watchlist

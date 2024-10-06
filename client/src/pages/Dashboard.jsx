@@ -58,7 +58,7 @@ const Dashboard = () => {
         const stockSymbols = stocks.map((x) => x["StockSymbol"]);
         try {
           const recommendationsResponse = await axios.get(
-            `https://dashboard-backend-three-psi.vercel.app/api/recommendations?stocks=${stockSymbols.join(
+            `https://dashboard-backend-three-psi.vercel.app/api/recommended?stocks=${stockSymbols.join(
               ","
             )}`
           );
@@ -154,7 +154,7 @@ const Dashboard = () => {
           <Grid item xs={12} md={8}>
             <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
               <Typography variant="h5" gutterBottom>
-                Portfolio Performance
+                Portfolio Overview
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
