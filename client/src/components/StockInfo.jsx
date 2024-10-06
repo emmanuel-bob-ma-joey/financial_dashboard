@@ -26,10 +26,8 @@ const StockInfo = ({ companyName, stockSymbol }) => {
       setUser(currentUser); // Update your state with the new user
       console.log("user auth status has changed");
     });
-
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []);
 
   const URL = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol.replace(
     /^/g,
@@ -66,12 +64,15 @@ const StockInfo = ({ companyName, stockSymbol }) => {
   const addToWatchList = async () => {
     console.log("Adding " + stockSymbol + " to " + user + " watchlist");
     const userid = user ? user.uid : "NULL";
-    //e.preventDefault();
 
     const newStock = {
       stockSymbol: stockSymbol,
       companyName: companyName,
       uid: userid,
+      buyPrice: 0,
+      sellPrice: 0,
+      buyDays: 0,
+      sellDays: 0,
     };
     console.log(newStock);
 
@@ -92,12 +93,17 @@ const StockInfo = ({ companyName, stockSymbol }) => {
 
   const addToPortfolio = async () => {
     const userid = user ? user.uid : "NULL";
-    console.log("Adding " + stockSymbol + " to " + userid + " portfolio");
-
+    // console.log("Adding " + stockSymbol + " to " + userid + " portfolio");
     const newStock = {
       stockSymbol: stockSymbol,
       companyName: companyName,
       uid: userid,
+      shares: 0,
+      bookValue: 0,
+      buyPrice: 0,
+      sellPrice: 0,
+      buyDays: 0,
+      sellDays: 0,
     };
     console.log(newStock);
 
@@ -118,22 +124,6 @@ const StockInfo = ({ companyName, stockSymbol }) => {
 
   return (
     <div>
-      {/* <Button
-        color="white"
-        bgColor="blue"
-        text="add to watchlist"
-        borderRadius="10px"
-        size="md"
-        onClick={addToWatchList}
-      ></Button>
-      <Button
-        color="white"
-        bgColor="blue"
-        text="add to portfolio"
-        borderRadius="10px"
-        size="md"
-        onClick={addToPortfolio}
-      ></Button> */}
       <Button
         variant="outlined"
         target="_blank"
@@ -183,7 +173,6 @@ const StockInfo = ({ companyName, stockSymbol }) => {
           </Table>
         </TableContainer>
       </div>
-
       <div className="mt-12">
         <p>{financials["Description"]}</p>
       </div>

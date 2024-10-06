@@ -2,7 +2,6 @@ import React from "react";
 import axios from "axios";
 import { TiTimes } from "react-icons/ti";
 import { Link, NavLink } from "react-router-dom";
-
 import {
   Table,
   TableBody,
@@ -13,66 +12,15 @@ import {
   Paper,
   Card,
 } from "@mui/material";
-
 import { Header, Button, TableEntry } from "../components";
-
 import { auth } from "../firebase.js";
-
-const ordersGrid = [
-  {
-    field: "StockSymbol",
-    headerText: "StockSymbol",
-    textAlign: "Center",
-    width: "120",
-  },
-  {
-    field: "StockName",
-    headerText: "Stock Name",
-    width: "150",
-    textAlign: "Center",
-  },
-  {
-    field: "Price",
-    headerText: "Price",
-    width: "150",
-    textAlign: "Center",
-  },
-  {
-    field: "DollarChange",
-    headerText: "Dollar Change",
-    format: "C2",
-    textAlign: "Center",
-    editType: "numericedit",
-    width: "150",
-  },
-  {
-    headerText: "Percentage Change",
-    field: "PercentageChange",
-    textAlign: "Center",
-    width: "120",
-  },
-];
 
 const Portfolio = () => {
   const [update, setUpdate] = React.useState(false);
-
   const [stocks, setStocks] = React.useState([]);
   const [stockInfo, setStockInfo] = React.useState([]);
   const [user, setUser] = React.useState(auth.currentUser);
-
   let stockData = [];
-
-  // onAuthStateChanged(auth, (u) => {
-  //   if (u) {
-  //     // User is signed in, see docs for a list of available properties
-  //     // https://firebase.google.com/docs/reference/js/auth.user
-  //     setUser(u);
-  //     // ...
-  //   } else {
-  //     // User is signed out
-  //     setUser(null);
-  //   }
-  // });
 
   React.useEffect(() => {
     // This listener is called whenever the user's sign-in state changes
@@ -83,7 +31,7 @@ const Portfolio = () => {
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []);
 
   const handleDelete = (row) => {
     console.log(row);
@@ -134,6 +82,7 @@ const Portfolio = () => {
       const stocks = await response.json();
       for (let i = 0; i < stocks.length; i++) {
         console.log("making api call...");
+        console.log(stocks[i]);
 
         await axios
           .get(
@@ -173,7 +122,10 @@ const Portfolio = () => {
     temp.PercentageChange =
       stockInfo[i]["regularMarketChangePercent"].toFixed(2);
     temp.DollarChange = stockInfo[i]["regularMarketChange"].toFixed(2);
-
+    temp.sellPrice = stocks[i]["sellPrice"];
+    temp.buyPrice = stocks[i]["buyPrice"];
+    temp.buyDays = stocks[i]["buyDays"];
+    temp.sellDays = stocks[i]["sellDays"];
     stockData.push(temp);
   }
 
@@ -192,7 +144,11 @@ const Portfolio = () => {
               <TableCell align="right">Shares</TableCell>
               <TableCell align="right">% change</TableCell>
               <TableCell align="right">dollar change</TableCell>
-              <TableCell align="right">Delete</TableCell>
+              <TableCell align="right">Buy Price</TableCell>
+              <TableCell align="right">Sell Price</TableCell>
+              <TableCell align="right">Buy Days</TableCell>
+              <TableCell align="right">Sell Days</TableCell>
+              <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -203,41 +159,6 @@ const Portfolio = () => {
                 update={setUpdate}
                 key={row.StockSymbol}
               />
-
-              // <TableRow
-              //   className="hover:bg-light-gray"
-              //   key={row.StockSymbol}
-              //   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              // >
-              //   <TableCell component="th" scope="row">
-              //     {row.StockSymbol}
-              //   </TableCell>
-              //   <TableCell component="th" scope="row">
-              //     {row.StockName}
-              //   </TableCell>
-
-              //   <TableCell align="right" component="th" scope="row">
-              //     {row.Price}
-              //   </TableCell>
-              //   <TableCell align="right" component="th" scope="row">
-              //     {row.PercentageChange}
-              //   </TableCell>
-              //   <TableCell align="right">{row.DollarChange}</TableCell>
-              //   <TableCell align="right">
-              //     <button
-              //       component="th"
-              //       // aria-label="edit"
-              //       // text="Delete"
-              //       className={` p-1 hover:drop-shadow-xl`}
-              //       onClick={() => handleDelete(row)}
-              //     >
-              //       <TiTimes size={28} />
-              //     </button>
-              //   </TableCell>
-              //   <TableCell align="right" component="th" scope="row">
-              //     {row.shares}
-              //   </TableCell>
-              // </TableRow>
             ))}
           </TableBody>
         </Table>
