@@ -112,6 +112,19 @@ const Portfolio = () => {
       <p>Unable to load due to API limit, please try again in a few seconds.</p>
     );
   }
+  const partitionAndSortStocks = (stockData) => {
+    const buyStocks = stockData.filter((stock) => stock.buySellZone === "Buy");
+    buyStocks.sort((a, b) => b.buySellZonePercent - a.buySellZonePercent);
+    const sellStocks = stockData.filter(
+      (stock) => stock.buySellZone === "Sell"
+    );
+    sellStocks.sort((a, b) => b.buySellZonePercent - a.buySellZonePercent);
+    const holdStocks = stockData.filter(
+      (stock) => stock.buySellZone === "Hold"
+    );
+    holdStocks.sort((a, b) => b.buySellZonePercent - a.buySellZonePercent);
+    return [...buyStocks, ...sellStocks, ...holdStocks];
+  };
 
   for (let i = 0; i < stocks.length; i++) {
     let temp = {};
@@ -141,6 +154,8 @@ const Portfolio = () => {
     }
     stockData.push(temp);
   }
+
+  stockData = partitionAndSortStocks(stockData);
 
   return (
     <div className="m-2 md:m-10 p-2 md:p-10 bg-white rounded-3xl">

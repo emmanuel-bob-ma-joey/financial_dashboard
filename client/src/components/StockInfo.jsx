@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { LineChart, StockCard } from "../components";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -15,9 +16,7 @@ import {
 import { auth } from "../firebase.js";
 
 const StockInfo = ({ companyName, stockSymbol }) => {
-  console.log(companyName);
-  console.log(stockSymbol);
-
+  const navigate = useNavigate();
   const [user, setUser] = React.useState(auth.currentUser);
 
   React.useEffect(() => {
@@ -116,10 +115,14 @@ const StockInfo = ({ companyName, stockSymbol }) => {
         },
         body: JSON.stringify(newStock),
       }
-    ).catch((error) => {
-      window.alert(error);
-      return;
-    });
+    )
+      .then((response) => {
+        navigate("/portfolio");
+      })
+      .catch((error) => {
+        window.alert(error);
+        return;
+      });
   };
 
   return (
