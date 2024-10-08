@@ -243,6 +243,9 @@ const TableEntry = ({ row, handleDelete, update }) => {
           -${row.DollarChange * -1}
         </TableCell>
       )}
+      <TableCell align="right" component="th" scope="row">
+        {row.dividendYield}%
+      </TableCell>
       {hover ? (
         <TableCell
           sx={{ width: "10%" }}

@@ -135,6 +135,9 @@ const Portfolio = () => {
     temp.PercentageChange =
       stockInfo[i]["regularMarketChangePercent"].toFixed(2);
     temp.DollarChange = stockInfo[i]["regularMarketChange"].toFixed(2);
+    temp.dividendYield = stockInfo[i]["dividendYield"]
+      ? stockInfo[i]["dividendYield"]
+      : 0;
     temp.sellPrice = stocks[i]["sellPrice"];
     temp.buyPrice = stocks[i]["buyPrice"];
     temp.buyDays = stocks[i]["buyDays"];
@@ -172,6 +175,7 @@ const Portfolio = () => {
               <TableCell align="right">Shares</TableCell>
               <TableCell align="right">% change</TableCell>
               <TableCell align="right">dollar change</TableCell>
+              <TableCell align="right">dividend yield</TableCell>
               <TableCell align="right">Buy Price</TableCell>
               <TableCell align="right">Sell Price</TableCell>
               <TableCell align="right">Buy Days</TableCell>
