@@ -1,159 +1,149 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
 import axios from "axios";
 import {
-  ChartComponent,
-  SeriesCollectionDirective,
-  SeriesDirective,
-  Inject,
-  LineSeries,
-  DateTime,
-  Legend,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
   Tooltip,
-} from "@syncfusion/ej2-react-charts";
-import { useStateContext } from "../../contexts/ContextProvider";
-import { Header } from "../../components";
+  Legend,
+} from "chart.js";
 
-//args: stockSymbol = company stock symbol
-//    string type= percentage or value - denotes y axis scale type
-// string compareTo = portfolio or watchlist
-//
-const LineChart = ({ title, stockSymbol, type }) => {
-  const baseURL = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stockSymbol}&apikey=${process.env.API_KEY}`;
-  const [post, setPost] = React.useState(null);
-  React.useEffect(() => {
-    axios.get(baseURL).then((response) => {
-      setPost(response.data);
-    });
-  }, []);
-  console.log(post);
-  if (!post) return null;
-  if (post["Note"] || post["Information"]) {
-    return (
-      <p>Unable to load due to API limit, please try again in a few seconds.</p>
-    );
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const LineChart = ({ symbol }) => {
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!symbol) {
+        setError("No stock symbol provided");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await axios.get(
+          `https://dashboard-backend-three-psi.vercel.app/api/finance/chart/${symbol}`
+        );
+        const result = response.data;
+
+        const data = {
+          labels: result.map((item) => {
+            const date = new Date(item.date);
+            return `${
+              date.getMonth() + 1
+            }/${date.getDate()}/${date.getFullYear()}`;
+          }),
+          datasets: [
+            {
+              label: symbol,
+              data: result.map((item) => item.close),
+              fill: false,
+              borderColor: "rgb(75, 192, 192)",
+              tension: 0.1,
+            },
+          ],
+        };
+
+        setChartData(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching stock data:", error);
+        setError("Failed to fetch stock data. Please try again later.");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [symbol]);
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: symbol
+          ? `${symbol} Stock Price - Past Year`
+          : "Stock Price - Past Year",
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+              }).format(context.parsed.y);
+            }
+            return label;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Date",
+        },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          autoSkip: true,
+          maxTicksLimit: 12, // Show approximately one label per month
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Price (USD)",
+        },
+        ticks: {
+          callback: function (value, index, values) {
+            return "$" + value.toFixed(2);
+          },
+        },
+      },
+    },
+  };
+
+  if (loading) {
+    return <div>Loading chart data...</div>;
   }
 
-  console.log(post);
-  console.log(post["Time Series (Daily)"]);
-  let poop = Object.entries(post["Time Series (Daily)"]);
-  let StockData = [];
-  let previousDay = 0;
-
-  if (type == "percentage") {
-    console.log(stockSymbol + "is by percentage");
-    for (let i = 0; i < Object.keys(poop).length; i++) {
-      let datapoint = {};
-      datapoint["x"] = poop[i][0];
-      datapoint["y"] =
-        ((poop[i][1]["1. open"] - poop[i][1]["4. close"]) /
-          poop[i][1]["1. open"]) *
-          100 +
-        previousDay;
-      StockData.push(datapoint);
-      previousDay = datapoint["y"];
-    }
-  } else if (type == "value") {
-    console.log(stockSymbol + "is by value");
-    for (let i = 0; i < Object.keys(poop).length; i++) {
-      let datapoint = {};
-      datapoint["x"] = poop[i][0];
-      datapoint["y"] = poop[i][1]["1. open"];
-      StockData.push(datapoint);
-      previousDay = datapoint["y"];
-    }
+  if (error) {
+    return <div>Error loading chart: {error}</div>;
   }
 
-  console.log(StockData);
+  if (!chartData) {
+    return <div>No chart data available</div>;
+  }
 
-  return (
-    <div className="m-4 md:m-10 mt-24 p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
-      <Header title={title} />
-      <div className="w-full">
-        {type == "percentage" ? (
-          <ChartComponent
-            primaryXAxis={{
-              valueType: "DateTime",
-              //labelFormat: "y",
-              //intervalType: "Weeks",
-
-              edgeLabelPlacement: "Shift",
-              majorGridLines: { width: 0 },
-              background: "white",
-            }}
-            primaryYAxis={{
-              labelFormat: "{value}%",
-              rangePadding: "None",
-              minimum: -50,
-              maximum: 50,
-              interval: 10,
-              lineStyle: { width: 0 },
-              majorTickLines: { width: 0 },
-              minorTickLines: { width: 0 },
-            }}
-          >
-            <Inject services={[LineSeries, DateTime, Legend]} />
-            <SeriesCollectionDirective>
-              <SeriesDirective
-                dataSource={StockData}
-                xName="x"
-                yName="y"
-                name={stockSymbol}
-                width={2}
-                type="Line"
-              ></SeriesDirective>
-              {/* <SeriesDirective
-                dataSource={personal}
-                xName="x"
-                yName="y"
-                name="Your portfolio"
-                width={2}
-                type="Line"
-              ></SeriesDirective> */}
-            </SeriesCollectionDirective>
-          </ChartComponent>
-        ) : (
-          <ChartComponent
-            primaryXAxis={{
-              valueType: "DateTime",
-              // labelFormat: "y",
-              // intervalType: "Days",
-              edgeLabelPlacement: "Shift",
-              majorGridLines: { width: 0 },
-              background: "white",
-            }}
-            primaryYAxis={{
-              labelFormat: "{value}$",
-              rangePadding: "None",
-
-              lineStyle: { width: 0 },
-              majorTickLines: { width: 0 },
-              minorTickLines: { width: 0 },
-            }}
-          >
-            <Inject services={[LineSeries, DateTime, Legend]} />
-            <SeriesCollectionDirective>
-              <SeriesDirective
-                dataSource={StockData}
-                xName="x"
-                yName="y"
-                name={stockSymbol}
-                width={2}
-                type="Line"
-              ></SeriesDirective>
-              {/* <SeriesDirective
-                dataSource={personal}
-                xName="x"
-                yName="y"
-                name="Your portfolio"
-                width={2}
-                type="Line"
-              ></SeriesDirective> */}
-            </SeriesCollectionDirective>
-          </ChartComponent>
-        )}
-      </div>
-    </div>
-  );
+  return <Line options={options} data={chartData} />;
 };
 
 export default LineChart;

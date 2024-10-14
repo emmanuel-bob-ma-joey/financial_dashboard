@@ -18,47 +18,53 @@ import { auth } from "../firebase.js";
 const StockInfo = ({ companyName, stockSymbol }) => {
   const navigate = useNavigate();
   const [user, setUser] = React.useState(auth.currentUser);
+  const [tableData, setTableData] = React.useState([]);
+  const relevantKeys = [
+    "region",
+    "quoteType",
+    "shortName",
+    "regularMarketDayHigh",
+    "regularMarketDayLow",
+    "regularMarketVolume",
+    "trailingPE",
+    "forwardPE",
+    "marketCap",
+    "priceToBook",
+    "averageAnalystRating",
+  ];
+  // const [financials, setFinancials] = React.useState(null);
+  console.log(companyName, stockSymbol);
 
   React.useEffect(() => {
     // This listener is called whenever the user's sign-in state changes
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser); // Update your state with the new user
-      console.log("user auth status has changed");
     });
     return () => unsubscribe();
   }, []);
 
-  const URL = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol.replace(
+  const URL = `https://dashboard-backend-three-psi.vercel.app/api/finance/quote/${stockSymbol.replace(
     /^/g,
     ""
-  )}&apikey=${process.env.API_KEY}`;
-  const [financials, setFinancials] = React.useState(null);
+  )}`;
 
   React.useEffect(() => {
     axios.get(URL).then((response) => {
       console.log(response.data);
-      setFinancials(response.data);
+      // setFinancials(response.data);
+
+      const data = Object.entries(response.data)
+        .filter(([key]) => relevantKeys.includes(key))
+        .map(([key, value]) => ({
+          key,
+          value:
+            typeof value === "object"
+              ? JSON.stringify(value)
+              : value.toString(),
+        }));
+      setTableData(data);
     });
-  }, []);
-
-  if (!financials || Object.keys(financials).length == 0) return null;
-  console.log(Object.keys(financials).length);
-
-  let tableData = [];
-  tableData.push({ stat: "EBIDTA", number: financials["EBITDA"] });
-  tableData.push({
-    stat: "Market Cap",
-    number: financials["MarketCapitalization"],
-  });
-  tableData.push({ stat: "PE Ratio", number: financials["PERatio"] });
-  tableData.push({ stat: "EPS", number: financials["EPS"] });
-  tableData.push({ stat: "Revenue TTM", number: financials["RevenueTTM"] });
-  tableData.push({
-    stat: "Dividend Yield",
-    number: `${financials["DividendYield"] * 100}%`,
-  });
-  tableData.push({ stat: "52 Week High", number: financials["52WeekHigh"] });
-  tableData.push({ stat: "52 Week Low", number: financials["52WeekLow"] });
+  }, [stockSymbol]);
 
   const addToWatchList = async () => {
     console.log("Adding " + stockSymbol + " to " + user + " watchlist");
@@ -125,6 +131,37 @@ const StockInfo = ({ companyName, stockSymbol }) => {
       });
   };
 
+  const formatMarketCap = (value) => {
+    const num = Number(value);
+    if (num >= 1e12) {
+      return `$${(num / 1e12).toFixed(2)} T`;
+    } else if (num >= 1e9) {
+      return `$${(num / 1e9).toFixed(2)} B`;
+    } else if (num >= 1e6) {
+      return `$${(num / 1e6).toFixed(2)} M`;
+    } else {
+      return `$${num.toLocaleString()}`;
+    }
+  };
+
+  const formatValue = (key, value) => {
+    switch (key) {
+      case "marketCap":
+        return formatMarketCap(value);
+      case "regularMarketVolume":
+        return Number(value).toLocaleString();
+      case "regularMarketDayHigh":
+      case "regularMarketDayLow":
+        return `$${Number(value).toFixed(2)}`;
+      case "trailingPE":
+      case "forwardPE":
+      case "priceToBook":
+        return Number(value).toFixed(2);
+      default:
+        return value;
+    }
+  };
+
   return (
     <div>
       <Button
@@ -146,11 +183,7 @@ const StockInfo = ({ companyName, stockSymbol }) => {
         add to watchlist
       </Button>
       <StockCard stockSymbol={stockSymbol}></StockCard>
-      <LineChart
-        title={companyName}
-        stockSymbol={stockSymbol}
-        type="value"
-      ></LineChart>
+      <LineChart symbol={stockSymbol}></LineChart>
       <div>
         <TableContainer component={Card}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -161,24 +194,24 @@ const StockInfo = ({ companyName, stockSymbol }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tableData.map((row) => (
+              {tableData.map(({ key, value }) => (
                 <TableRow
-                  key={row.stat}
+                  key={key}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    {row.stat}
+                    {key}
                   </TableCell>
-                  <TableCell align="right">{row.number}</TableCell>
+                  <TableCell align="right">{formatValue(key, value)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       </div>
-      <div className="mt-12">
+      {/* <div className="mt-12">
         <p>{financials["Description"]}</p>
-      </div>
+      </div> */}
     </div>
   );
 };

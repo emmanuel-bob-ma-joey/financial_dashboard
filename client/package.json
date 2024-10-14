@@ -19,15 +19,18 @@
     "@syncfusion/ej2-react-splitbuttons": "^25.1.37",
     "@tarekraafat/autocomplete.js": "^10.2.7",
     "axios": "^0.27.2",
+    "chart.js": "^4.4.4",
     "firebase": "^10.10.0",
     "firebaseui": "^6.1.0",
     "os-browserify": "^0.3.0",
     "react": "^17.0.2",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
-    "rsuite": "^5.58.1"
+    "rsuite": "^5.58.1",
+    "yahoo-finance2": "^2.13.2"
   },
   "scripts": {
     "start": "react-scripts start",
