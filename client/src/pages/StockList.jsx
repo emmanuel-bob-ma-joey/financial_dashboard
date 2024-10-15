@@ -31,17 +31,9 @@ const StockList = () => {
     }
   }, []);
 
-  // const showStock = (stock) => {
-  //   console.log("this is" + stock);
-  //   setSelectedStock(stock);
-  //   console.log(" and this should be the same" + selectedStock);
-  // };
-
   const searchStock = (event, newStock) => {
     setSelectedStock(newStock);
-    console.log("poop" + newStock);
-    //setSelectedStock(newStock);
-    navigate(`/stocks/${newStock}`);
+    navigate(`/stocks/${newStock.split(" ").pop()}`);
   };
   console.log(selectedStock);
 

@@ -58,11 +58,16 @@ const Dashboard = () => {
         const stockSymbols = stocks.map((x) => x["StockSymbol"]);
         try {
           const recommendationsResponse = await axios.get(
-            `https://dashboard-backend-three-psi.vercel.app/api/recommended?stocks=${stockSymbols.join(
+            `https://dashboard-backend-three-psi.vercel.app/api/finance/recommended?symbols=${stockSymbols.join(
               ","
             )}`
           );
-          setRecommendations(recommendationsResponse.data);
+
+          const allRecommendedSymbols = recommendationsResponse.data.flatMap(
+            (item) => item.recommendedSymbols.map((rec) => rec.symbol)
+          );
+          const uniqueRecommendedSymbols = [...new Set(allRecommendedSymbols)];
+          setRecommendations(uniqueRecommendedSymbols);
           console.log("recommendations: ", recommendationsResponse.data);
         } catch (error) {
           if (error.response && error.response.status === 404) {
