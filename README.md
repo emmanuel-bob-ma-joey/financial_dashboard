@@ -3,7 +3,7 @@
 A fullstack web application to stay up to date on latest market movements and track your investment portfolio.
 
 ![Alt text](images/updated_dashboard.png)
-![Alt text](images/updated_stockChart.png)
+![Alt text](images/updated_stockchart.png)
 
 ![Alt text](images/image-1.png)
 ![Alt text](images/updated_portfolio.png)
