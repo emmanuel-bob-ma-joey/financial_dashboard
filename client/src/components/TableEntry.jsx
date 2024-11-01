@@ -31,30 +31,50 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-const getBuySellZoneColor = (zone) => {
-  switch (zone.toLowerCase()) {
-    case "sell":
-      return "linear-gradient(135deg, #4CAF50, #2E7D32)"; // Darker green gradient
-    case "buy":
-      return "linear-gradient(135deg, #F44336, #B71C1C)"; // Darker red gradient
-    case "hold":
-    default:
-      return "linear-gradient(135deg, #9E9E9E, #424242)"; // Darker grey gradient
+const getColorGradient = (
+  zone,
+  percentage,
+  currentPrice,
+  buyPrice,
+  sellPrice
+) => {
+  // Define base colors
+  const green = [46, 125, 50]; // Sell color
+  const red = [183, 28, 28]; // Buy color
+
+  // For hold zone, calculate position between buy and sell prices
+  if (zone.toLowerCase() === "hold") {
+    // Calculate how close the price is to buy/sell limits
+    const totalRange = sellPrice - buyPrice;
+    const positionFromBuy = currentPrice - buyPrice;
+    const ratio = (1 - positionFromBuy / totalRange).toFixed(2) * 100;
+    //note that ratio is inverted
+    // console.log(ratio);
+    // console.log(currentPrice, buyPrice, sellPrice);
+
+    // Create gradient with dynamic ratio
+    return `linear-gradient(to right, 
+    rgba(${red[0]}, ${red[1]}, ${red[2]}, 1) ${ratio}%, 
+    rgba(${green[0]}, ${green[1]}, ${green[2]}, 1) ${ratio}%
+  )`;
+  } else if (zone.toLowerCase() === "sell") {
+    return "linear-gradient(135deg, #4CAF50, #2E7D32)"; // Darker green gradient
+  } else if (zone.toLowerCase() === "buy") {
+    return "linear-gradient(135deg, #F44336, #B71C1C)"; // Darker red gradient
   }
+  //should never happen
+  return "white";
 };
 
-const BuySellZoneCell = styled(StyledTableCell)(({ theme, zone }) => ({
-  background: getBuySellZoneColor(zone),
-  color: "white",
-  fontWeight: "bold",
-  borderRadius: "4px",
-  textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
-  transition: "all 0.3s cubic-bezier(.25,.8,.25,1)",
-  "&:hover": {
-    boxShadow: "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)",
-  },
-}));
+const BuySellZoneCell = styled(StyledTableCell)(
+  ({ theme, zone, percentage, price, buyprice, sellprice }) => ({
+    background: getColorGradient(zone, percentage, price, buyprice, sellprice),
+    color: "white",
+    fontWeight: "bold",
+    textShadow: "1px 1px 1px rgba(0,0,0,0.5)",
+    transition: "background-color 0.3s ease",
+  })
+);
 
 const TableEntry = ({ row, handleDelete, update }) => {
   const navigate = useNavigate();
@@ -257,8 +277,17 @@ const TableEntry = ({ row, handleDelete, update }) => {
           sellDays
         )}
       </StyledTableCell>
-      <BuySellZoneCell align="center" zone={row.buySellZone}>
-        {row.buySellZonePercent.toFixed(2)}% {row.buySellZone}
+      <BuySellZoneCell
+        align="center"
+        zone={row.buySellZone}
+        percentage={row.buySellZonePercent || 0}
+        price={row.Price}
+        buyprice={row.buyPrice}
+        sellprice={row.sellPrice}
+      >
+        {row.buySellZone === "Hold"
+          ? `Hold`
+          : `${row.buySellZonePercent.toFixed(2)}% ${row.buySellZone}`}
       </BuySellZoneCell>
       <StyledTableCell align="right">
         {consecutiveDays === 365 ? `${consecutiveDays}+` : consecutiveDays}
